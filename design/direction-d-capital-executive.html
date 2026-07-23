@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Capital Executive Dashboard | Residential Development</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: IBM Plex Sans & JetBrains Mono -->
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-container": "#7c839b",
+                        "on-surface-variant": "#45464d",
+                        "surface-container": "#eceef0",
+                        "secondary-container": "#d5e3fc",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#b9c8de",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "on-background": "#191c1e",
+                        "outline-variant": "#c6c6cd",
+                        "on-tertiary-container": "#768599",
+                        "tertiary-fixed": "#d4e4fa",
+                        "on-tertiary-fixed": "#0d1c2d",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "inverse-surface": "#2d3133",
+                        "primary-container": "#131b2e",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed": "#d5e3fc",
+                        "outline": "#76777d",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary-container": "#57657a",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-dim": "#d8dadc",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary-fixed-variant": "#39485a",
+                        "surface-variant": "#e0e3e5",
+                        "secondary": "#515f74",
+                        "inverse-primary": "#bec6e0",
+                        "on-error-container": "#93000a",
+                        "background": "#f7f9fb",
+                        "primary": "#000000",
+                        "surface-bright": "#f7f9fb",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "on-surface": "#191c1e",
+                        "tertiary": "#000000",
+                        "primary-fixed-dim": "#bec6e0",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "tertiary-container": "#0d1c2d",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "container-max": "1440px",
+                        "margin-page": "40px",
+                        "stack-md": "24px",
+                        "stack-sm": "12px",
+                        "gutter": "24px",
+                        "stack-lg": "48px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["IBM Plex Sans"],
+                        "financial-data": ["JetBrains Mono"],
+                        "headline-md": ["IBM Plex Sans"],
+                        "headline-lg": ["IBM Plex Sans"],
+                        "body-lg": ["IBM Plex Sans"],
+                        "headline-sm": ["IBM Plex Sans"],
+                        "label-sm": ["IBM Plex Sans"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "financial-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .built-up-pattern {
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 0, 0, 0.03) 10px, rgba(0, 0, 0, 0.03) 11px);
+        }
+        .lump-sum-dashed {
+            border: 1px dashed #c6c6cd;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .num-tabular { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface-container-lowest border-b border-outline-variant h-20">
+<div class="flex justify-between items-center w-full px-margin-page h-full max-w-container-max mx-auto">
+<div class="font-headline-md text-headline-md font-bold text-primary">Capital Executive Dashboard</div>
+<nav class="hidden md:flex gap-gutter items-center">
+<a class="font-headline-sm text-headline-sm text-primary border-b-2 border-primary pb-1" href="#">Portfolio</a>
+<a class="font-headline-sm text-headline-sm text-secondary hover:bg-surface-container transition-colors px-2 py-1 rounded" href="#">Projects</a>
+<a class="font-headline-sm text-headline-sm text-secondary hover:bg-surface-container transition-colors px-2 py-1 rounded" href="#">Financials</a>
+<a class="font-headline-sm text-headline-sm text-secondary hover:bg-surface-container transition-colors px-2 py-1 rounded" href="#">Compliance</a>
+</nav>
+<div class="flex items-center gap-stack-md">
+<button class="material-symbols-outlined text-on-surface hover:bg-surface-container p-2 rounded transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface hover:bg-surface-container p-2 rounded transition-colors">settings</button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded font-medium hover:opacity-80 transition-opacity">Download Report</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-20 h-[calc(100vh-80px)] w-64 bg-surface border-r border-outline-variant flex flex-col py-stack-md">
+<div class="px-4 mb-stack-md">
+<div class="font-headline-sm text-headline-sm font-semibold text-primary">Project Alpha</div>
+<div class="text-on-surface-variant text-label-sm">Phase II Development</div>
+</div>
+<nav class="flex-1 space-y-1 px-2">
+<a class="bg-secondary-container text-on-secondary-container font-semibold flex items-center gap-stack-sm px-4 py-3 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md">Executive Summary</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-stack-sm px-4 py-3 rounded-DEFAULT transition-all" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-md">Cost Analysis</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-stack-sm px-4 py-3 rounded-DEFAULT transition-all" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md">Project Health</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-stack-sm px-4 py-3 rounded-DEFAULT transition-all" href="#">
+<span class="material-symbols-outlined">engineering</span>
+<span class="font-body-md">Vendor Management</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-stack-sm px-4 py-3 rounded-DEFAULT transition-all" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md">Archive</span>
+</a>
+</nav>
+<div class="mt-auto px-2 space-y-1">
+<button class="w-full bg-primary text-on-primary py-3 rounded font-semibold mb-4">New Request</button>
+<a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-stack-sm px-4 py-3 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md">Help Center</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high flex items-center gap-stack-sm px-4 py-3 rounded-DEFAULT" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-body-md">Log Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 mt-20 p-margin-page max-w-container-max mx-auto overflow-y-auto">
+<!-- Dashboard Header / Primary Context -->
+<section class="mb-stack-lg">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-stack-md mb-6">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-2">Residential Development Board Overview</h1>
+<div class="flex flex-wrap gap-4 text-on-surface-variant">
+<span class="bg-surface-container px-3 py-1 rounded-full text-label-sm">Cluster 1</span>
+<span class="border-l border-outline-variant pl-4 text-body-md">98 apartments across 3 buildings plus a basement</span>
+</div>
+</div>
+<div class="text-right">
+<div class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Total Project Cost</div>
+<div class="font-financial-data text-[40px] leading-tight text-primary font-bold num-tabular">147,629,110.42 EGP</div>
+</div>
+</div>
+<!-- Total Cost Distribution Hero Card -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Aggregate Stats -->
+<div class="col-span-1 bg-surface-container-lowest border border-outline-variant p-6 flex flex-col justify-center">
+<div class="text-label-sm text-on-surface-variant mb-4">Cost Per Apartment</div>
+<div class="font-financial-data text-headline-md text-primary num-tabular">1,506,419 EGP</div>
+<div class="mt-6 pt-6 border-t border-outline-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">link</span>
+<span class="text-label-sm font-bold uppercase">Built-up focus</span>
+</div>
+</div>
+<!-- Lump-sum vs Built-up Split -->
+<div class="col-span-2 bg-surface-container-lowest border border-outline-variant p-6">
+<div class="flex justify-between items-center mb-6">
+<div class="text-headline-sm font-headline-sm">Cost composition split</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+<span class="text-label-sm italic text-on-surface-variant">Lump-sum</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">link</span>
+<span class="text-label-sm font-bold">Built-up</span>
+</div>
+</div>
+</div>
+<div class="h-12 w-full flex bg-surface-container rounded-sm overflow-hidden mb-4">
+<div class="h-full flex items-center justify-center text-on-surface-variant text-[12px] lump-sum-dashed border-none bg-surface-container-high" style="width: 76.8%">
+                            76.8% Lump-sum
+                        </div>
+<div class="h-full flex items-center justify-center text-primary font-bold built-up-pattern" style="width: 23.2%">
+                            23.2%
+                        </div>
+</div>
+<div class="flex justify-between font-financial-data text-body-md">
+<div class="flex items-center gap-2 italic">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+                            113,431,282.00 EGP
+                        </div>
+<div class="flex items-center gap-2 font-bold">
+                            34,197,828.42 EGP
+                            <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">link</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Data Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Cost by Building Section (Bento Left) -->
+<div class="lg:col-span-5 flex flex-col gap-gutter">
+<div class="bg-surface-container-lowest border border-outline-variant p-0 flex flex-col">
+<div class="px-6 py-4 border-b border-outline-variant bg-surface-container-low">
+<h2 class="font-headline-sm text-headline-sm text-primary">Cost by building unit</h2>
+</div>
+<div class="p-6 space-y-4">
+<!-- Building 10 -->
+<div class="flex justify-between items-center p-3 built-up-pattern border border-outline-variant">
+<div>
+<div class="font-bold">Building 10</div>
+<div class="flex items-center gap-1 text-label-sm uppercase font-bold text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">link</span>
+                                    Built-up
+                                </div>
+</div>
+<div class="font-financial-data text-headline-sm font-bold num-tabular">26,120,050</div>
+</div>
+<!-- Building 11 -->
+<div class="flex justify-between items-center p-3 built-up-pattern border border-outline-variant">
+<div>
+<div class="font-bold">Building 11</div>
+<div class="flex items-center gap-1 text-label-sm uppercase font-bold text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">link</span>
+                                    Built-up
+                                </div>
+</div>
+<div class="font-financial-data text-headline-sm font-bold num-tabular">26,120,050</div>
+</div>
+<!-- Building 12 -->
+<div class="flex justify-between items-center p-3 built-up-pattern border border-outline-variant">
+<div>
+<div class="font-bold">Building 12</div>
+<div class="flex items-center gap-1 text-label-sm uppercase font-bold text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">link</span>
+                                    Built-up
+                                </div>
+</div>
+<div class="font-financial-data text-headline-sm font-bold num-tabular">30,744,908</div>
+</div>
+<!-- Basement -->
+<div class="flex justify-between items-center p-3 lump-sum-dashed bg-surface-container-low">
+<div>
+<div class="italic">Basement</div>
+<div class="flex items-center gap-1 text-label-sm uppercase italic text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+                                    Lump-sum (43.8%)
+                                </div>
+</div>
+<div class="font-financial-data text-headline-sm italic num-tabular">64,644,102</div>
+</div>
+</div>
+</div>
+<!-- Abstract Decorative Area / Visual Placeholder -->
+<div class="flex-1 relative overflow-hidden rounded min-h-[300px] border border-outline-variant">
+<div class="absolute inset-0 z-0" data-alt="A sophisticated architectural site map of a high-end residential complex. The style is a minimalist blueprint with clean white lines on a subtle slate gray background. The lighting is diffused and professional, suggesting a high-level executive presentation environment. This technical illustration emphasizes precision and institutional stability." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA-BTmUPIaI0xA3SodFJZ5yjomgFo6b_frzsU40xFIr8qOpWfVafBn9CGJw35UGBfCUplu58yKY8r1ysrbw8jQ8l_WON00WdFTnjRDGsJ-XlDgJcn50jJHxa78CQTz1Zoi2_kndd-wbxLyk6LG1arRfIcOnIcKgddHOq9k2GLjzxdvbxHEaWgkhzMZdL3auX_xCLQeo0kBUKzFHUqGX1dRmlZliB6GoLIR0T1UtViypDX7dZzSAGwr4lIl0BOOzbnX6uYUncZSKhopR')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex flex-col justify-end p-6 z-10">
+<div class="text-on-primary font-headline-sm">Project location overview</div>
+<div class="text-on-primary/70 text-body-md">Spatial distribution of cluster assets</div>
+</div>
+</div>
+</div>
+<!-- Cost by Activity Section (Bento Right) -->
+<div class="lg:col-span-7 bg-surface-container-lowest border border-outline-variant flex flex-col">
+<div class="px-6 py-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+<h2 class="font-headline-sm text-headline-sm text-primary">Apartment finishes breakdown</h2>
+<div class="text-label-sm text-on-surface-variant italic">All figures in EGP</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container border-b border-outline-variant">
+<th class="px-6 py-4 text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">Activity type</th>
+<th class="px-6 py-4 text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant text-right">Cost (EGP)</th>
+<th class="px-6 py-4 text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant text-right">Weight (%)</th>
+<th class="px-6 py-4 text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant text-center">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Windows -->
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-6 py-4 font-bold">Windows</td>
+<td class="px-6 py-4 font-financial-data text-right font-bold num-tabular">10,201,002</td>
+<td class="px-6 py-4 font-financial-data text-right num-tabular">29.8%</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">link</span>
+</td>
+</tr>
+<!-- Doors -->
+<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
+<td class="px-6 py-4 font-bold">Doors</td>
+<td class="px-6 py-4 font-financial-data text-right font-bold num-tabular">6,720,000</td>
+<td class="px-6 py-4 font-financial-data text-right num-tabular">19.7%</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">link</span>
+</td>
+</tr>
+<!-- Gypsum board -->
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-6 py-4 font-bold">Gypsum board</td>
+<td class="px-6 py-4 font-financial-data text-right font-bold num-tabular">4,143,950</td>
+<td class="px-6 py-4 font-financial-data text-right num-tabular">12.1%</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">link</span>
+</td>
+</tr>
+<!-- Painting - walls -->
+<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
+<td class="px-6 py-4 font-bold">Painting - walls</td>
+<td class="px-6 py-4 font-financial-data text-right font-bold num-tabular">3,828,262</td>
+<td class="px-6 py-4 font-financial-data text-right num-tabular">11.2%</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">link</span>
+</td>
+</tr>
+<!-- Ceramic & porcelain flooring -->
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-6 py-4 font-bold">Ceramic &amp; porcelain flooring</td>
+<td class="px-6 py-4 font-financial-data text-right font-bold num-tabular">3,631,900</td>
+<td class="px-6 py-4 font-financial-data text-right num-tabular">10.6%</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">link</span>
+</td>
+</tr>
+<!-- HDF flooring -->
+<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
+<td class="px-6 py-4 font-bold">HDF flooring</td>
+<td class="px-6 py-4 font-financial-data text-right font-bold num-tabular">2,547,099</td>
+<td class="px-6 py-4 font-financial-data text-right num-tabular">7.4%</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">link</span>
+</td>
+</tr>
+<!-- Ceramic & porcelain walls -->
+<tr class="hover:bg-surface-container transition-colors">
+<td class="px-6 py-4 font-bold">Ceramic &amp; porcelain walls</td>
+<td class="px-6 py-4 font-financial-data text-right font-bold num-tabular">2,011,695</td>
+<td class="px-6 py-4 font-financial-data text-right num-tabular">5.9%</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">link</span>
+</td>
+</tr>
+<!-- Painting - ceiling -->
+<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
+<td class="px-6 py-4 font-bold">Painting - ceiling</td>
+<td class="px-6 py-4 font-financial-data text-right font-bold num-tabular">1,113,921</td>
+<td class="px-6 py-4 font-financial-data text-right num-tabular">3.3%</td>
+<td class="px-6 py-4 text-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">link</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer/Legend -->
+<div class="mt-auto p-6 bg-surface-container-low border-t border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">link</span>
+<span class="text-label-sm font-bold">Built-up cost</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">edit</span>
+<span class="text-label-sm italic text-on-surface-variant">Lump-sum estimation</span>
+</div>
+</div>
+<button class="text-primary font-bold hover:underline flex items-center gap-1">
+                        View Detailed Activity Log
+                        <span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Secondary Insights / Bottom Bento -->
+<section class="mt-stack-lg grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="bg-surface-container-lowest border border-outline-variant p-6">
+<div class="text-label-sm text-on-surface-variant mb-2">Total Apartments</div>
+<div class="font-financial-data text-headline-sm text-primary">98 Units</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-6">
+<div class="text-label-sm text-on-surface-variant mb-2">Project Phase</div>
+<div class="font-financial-data text-headline-sm text-primary">Phase II</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-6">
+<div class="text-label-sm text-on-surface-variant mb-2">Forecast Variance</div>
+<div class="font-financial-data text-headline-sm text-on-error-container bg-error-container px-2 py-0.5 rounded inline-block">+0.42%</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-6">
+<div class="text-label-sm text-on-surface-variant mb-2">Next Board Review</div>
+<div class="font-financial-data text-headline-sm text-primary">Oct 14, 2024</div>
+</div>
+</section>
+</main>
+<script>
+        // Micro-interaction for table rows
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'translateX(4px)';
+            });
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Simple dashboard notification fade-in effect
+        window.addEventListener('load', () => {
+            console.log('Dashboard initialized. Financial data rendered with tabular numerals.');
+        });
+    </script>
+</body></html>
