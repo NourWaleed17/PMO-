@@ -398,30 +398,60 @@ acceptance criteria. See "What's not done" above for the handful of
 non-blocking follow-ups (a fresh-eyes design pass, lint in the verify chain,
 committed browser tests, Phase 2 planning) before calling it fully closed.
 
-## Phase 2 — authorized, not yet started
+## Phase 2 — schema drafted and tested, still no live project
 
-**2026-07-23:** the user explicitly chose "start real Phase 2 (Supabase,
-auth, API)" via `AskUserQuestion`, overriding `docs/CLAUDE.md`'s Phase 1
-scope note below for that specific decision. This does **not** mean Phase 2
-is built — nothing in `src/data/index.ts` has changed, the app still reads
-`seed.json` directly. What actually blocks starting:
+**2026-07-23:** the user chose "start real Phase 2 (Supabase, auth, API)"
+via `AskUserQuestion`, overriding `docs/CLAUDE.md`'s Phase 1 scope note for
+that specific decision, then explicitly said "proceed to Phase 2" without
+yet supplying project credentials. What actually happened, since an AI
+session can't provision a live Supabase project or OAuth client on its own:
 
-- **A live Supabase project.** Cannot be provisioned by an AI session —
-  needs a URL + anon key (and, for schema work, a service-role key or the
-  Supabase CLI) from the user, or explicit direction to scaffold against a
-  local Supabase (Docker is available in this sandbox; the Supabase CLI is
-  not yet installed).
-- **An auth provider.** The brief's Phase 2 plan (`docs/BRIEF.md` section 11)
-  specifies Google SSO — needs an OAuth client from Google Cloud Console.
-- **A schema decision.** `docs/MODEL.md`'s structure (clusters → activities/
-  layouts/buildings, no stored totals) maps reasonably directly to tables,
-  but revisions, the audit log, and the editor/viewer role split (also
-  section 11) need actual design before a migration gets written, not just
-  a literal translation of the current TypeScript types.
+- **`supabase/migrations/20260723120000_phase2_schema.sql`** — a full
+  first-draft schema (tables mirroring `docs/MODEL.md`, plus `profiles`
+  with an editor/viewer role, `revisions` as draft/approved snapshots,
+  `audit_log`, RLS on every table). **Not applied to a live project** — no
+  Supabase link exists — but genuinely tested: this sandbox has no Docker
+  (so no local Supabase stack) but does have a real Postgres 16 install, so
+  the migration was applied to a scratch database, the actual
+  `src/data/index.ts` model was imported into it row by row, read back out,
+  validated with `modelSchema`, and run through `summarise()` — same
+  cluster total, 147,629,110.42, exact. The role/revision/audit-log state
+  machine was exercised end to end too (signup → default viewer → promote
+  to editor → draft → edit → approve → approval locks it → viewer blocked
+  from writing). **Two real bugs surfaced by this and got fixed**: a missing
+  table-level `GRANT` that made every RLS-gated write fail regardless of
+  policy, and a missing `WITH CHECK` on the revision-update policy that
+  rejected the approve transition itself (Postgres reuses `USING` as the
+  implicit check on the post-update row when none is given). Full account,
+  including exactly what wasn't and can't be tested this way, in
+  `supabase/README.md` — read it before touching this schema again.
+- **`.env.example`** — `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
+  placeholders. Not consumed by any code yet.
+- **`src/data/index.ts` is unchanged.** The running app still reads
+  `seed.json` directly. No Supabase client code exists in `src/` — writing
+  it now, before there's a real project to point it at and test against,
+  would be exactly the kind of untestable speculative scaffolding
+  `docs/CLAUDE.md` warns against. That's the next piece of actual code, once
+  unblocked.
 
-Next session: ask the user for the above before writing schema/migration
-code — don't guess a Supabase project structure and build against it
-speculatively.
+What's still genuinely blocking a live deployment:
+
+- **A live Supabase project** — URL + anon key, from the user. (Local
+  Supabase via CLI is also an option if they'd rather scaffold against that
+  first, but the CLI would need installing and Docker isn't available in
+  this particular sandbox — a future session may have it.)
+- **An auth provider** — the brief specifies Google SSO (`docs/BRIEF.md`
+  section 11), needs an OAuth client from Google Cloud Console.
+- **Sign-off on the schema above.** It's a reasoned first draft, tested for
+  internal correctness, not a reviewed-and-approved design. In particular:
+  the revision-as-jsonb-snapshot approach (vs. a normalized per-field
+  history) was a deliberate simplicity call worth the user confirming
+  they're fine with, especially if Phase 3's what-if scenarios
+  (`docs/BRIEF.md` section 11) end up wanting more granular diffs than a
+  snapshot gives you.
+
+Next session: get the above from the user before writing Supabase client
+code or pushing this migration to a real project.
 
 ## Things to not do
 
