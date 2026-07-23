@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { ScreenNav } from "../components/ScreenNav";
 import { useModel } from "../data/ModelContext";
-import { CARD, FLAG, INK, INK_SOFT, MEASURED, PageShell, RULE } from "../design/direction-c";
+import { PageContent } from "../design/direction-d";
+import { downloadModelJson } from "../lib/export";
 import { formatExact, formatInt, formatPercent } from "../lib/format";
-import type { Model, Space } from "../engine/engine";
+import type { Space } from "../engine/engine";
 import { deltaSummary } from "../selectors/rates";
 
 function NumberField({
@@ -33,22 +33,10 @@ function NumberField({
         if (Number.isFinite(parsed) && parsed !== value) onCommit(parsed);
         else setText(String(value));
       }}
-      className="rounded-md border px-2 py-1 text-sm tabular-nums"
-      style={{ borderColor: RULE, backgroundColor: CARD, color: INK, width }}
+      style={{ width }}
+      className="font-mono tabular-nums text-body-md border border-outline-variant bg-surface-container-lowest text-on-surface px-2 py-1 rounded-sm focus:border-2 focus:border-primary focus:outline-none"
     />
   );
-}
-
-function downloadJson(model: Model) {
-  const blob = new Blob([JSON.stringify(model, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "cluster-1-edited.json";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
 }
 
 export default function Rates() {
@@ -94,42 +82,39 @@ export default function Rates() {
   const presentSpaces = selectedLayout?.spaces.filter((s) => s.floor_area !== null || s.wall_area !== null) ?? [];
 
   return (
-    <PageShell>
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Rates — Cluster 1</h1>
-          <p className="text-sm" style={{ color: INK_SOFT }}>
-            Edit any rate, area, or apartment count. Nothing is saved until you export.
-          </p>
-        </div>
+    <PageContent>
+      <header className="mb-8">
+        <h1 className="text-headline-lg text-primary mb-2">Rates — Cluster 1</h1>
+        <p className="text-body-md text-on-surface-variant">
+          Edit any rate, area, or apartment count. Nothing is saved until you export.
+        </p>
       </header>
 
-      <div className="mb-6 rounded-xl border p-5 sm:p-6" style={{ backgroundColor: CARD, borderColor: delta.isDirty ? FLAG : RULE }}>
+      <div
+        className={`mb-8 bg-surface-container-lowest border p-6 ${delta.isDirty ? "border-error" : "border-outline-variant"}`}
+      >
         {delta.isDirty ? (
           <>
-            <p className="text-xs uppercase tracking-wide" style={{ color: INK_SOFT }}>
-              Live delta vs. the seed
-            </p>
-            <p className="mt-1 text-lg font-extrabold sm:text-xl">
+            <p className="text-label-sm text-on-surface-variant tracking-wide">Live delta vs. the seed</p>
+            <p className="mt-1 font-mono text-body-lg font-bold tabular-nums">
               {formatExact(delta.seedTotal)} → {formatExact(delta.currentTotal)}
             </p>
-            <p className="mt-1 text-sm" style={{ color: delta.delta < 0 ? MEASURED : FLAG }}>
+            <p className={`mt-1 font-mono text-body-md tabular-nums ${delta.delta < 0 ? "text-primary" : "text-on-error-container"}`}>
               {delta.delta > 0 ? "up" : delta.delta < 0 ? "down" : "unchanged by"} {formatExact(Math.abs(delta.delta))} (
               {delta.delta >= 0 ? "+" : "−"}
               {formatPercent(Math.abs(delta.deltaPercent))})
             </p>
           </>
         ) : (
-          <p className="text-sm" style={{ color: INK_SOFT }}>
-            Matches the seed exactly — {formatExact(delta.seedTotal)}. No edits yet.
+          <p className="text-body-md text-on-surface-variant">
+            Matches the seed exactly — <span className="font-mono tabular-nums">{formatExact(delta.seedTotal)}</span>. No edits yet.
           </p>
         )}
         <div className="mt-4 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={() => downloadJson(model)}
-            className="rounded-md px-4 py-2 text-sm font-semibold"
-            style={{ backgroundColor: INK, color: CARD }}
+            onClick={() => downloadModelJson(model)}
+            className="bg-primary text-on-primary px-4 py-2 rounded text-body-md font-medium hover:opacity-80 transition-opacity"
           >
             Export JSON
           </button>
@@ -139,28 +124,27 @@ export default function Rates() {
             onClick={() => {
               if (window.confirm("Discard all edits and return to the seed figures?")) reset();
             }}
-            className="rounded-md border px-4 py-2 text-sm font-semibold disabled:opacity-40"
-            style={{ borderColor: RULE, color: INK, backgroundColor: CARD }}
+            className="border border-outline-variant text-on-surface px-4 py-2 rounded text-body-md font-medium disabled:opacity-40"
           >
             Reset to seed
           </button>
         </div>
       </div>
 
-      <section className="mb-6">
-        <h2 className="mb-3 text-base font-extrabold">Apartment counts</h2>
+      <section className="mb-8">
+        <h2 className="mb-3 text-headline-sm font-semibold text-primary">Apartment counts</h2>
         <div className="grid gap-2.5 sm:grid-cols-2">
           {model.buildings
             .filter((b) => b.units.length > 0)
             .map((b) => (
-              <div key={b.id} className="rounded-lg border p-3.5" style={{ backgroundColor: CARD, borderColor: RULE }}>
-                <div className="mb-2 text-sm font-bold">{b.name}</div>
+              <div key={b.id} className="bg-surface-container-lowest border border-outline-variant p-3.5">
+                <div className="mb-2 text-body-md font-bold">{b.name}</div>
                 <div className="grid gap-2">
                   {b.units.map((u) => {
                     const layout = model.layouts.find((l) => l.id === u.layout_id);
                     return (
-                      <div key={u.layout_id} className="flex items-center justify-between gap-2 text-sm">
-                        <span style={{ color: INK_SOFT }}>{layout?.name ?? u.layout_id}</span>
+                      <div key={u.layout_id} className="flex items-center justify-between gap-2 text-body-md">
+                        <span className="text-on-surface-variant">{layout?.name ?? u.layout_id}</span>
                         <NumberField
                           value={u.count}
                           onCommit={(next) => setUnitCount(b.id, u.layout_id, next)}
@@ -176,12 +160,10 @@ export default function Rates() {
         </div>
       </section>
 
-      <section className="mb-6">
+      <section>
         <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="text-base font-extrabold">Rates &amp; areas by layout</h2>
-          <span className="text-xs" style={{ color: INK_SOFT }}>
-            {formatInt(presentSpaces.length)} spaces present
-          </span>
+          <h2 className="text-headline-sm font-semibold text-primary">Rates &amp; areas by layout</h2>
+          <span className="text-label-sm text-on-surface-variant">{formatInt(presentSpaces.length)} spaces present</span>
         </div>
 
         <div className="mb-4 grid grid-cols-2 gap-2.5 sm:grid-cols-5">
@@ -191,12 +173,11 @@ export default function Rates() {
               type="button"
               onClick={() => setSelectedLayoutId(l.id)}
               aria-pressed={l.id === selectedLayout?.id}
-              className="rounded-lg border-2 p-3 text-left text-sm font-bold"
-              style={
+              className={`border-2 p-3 text-left text-body-md font-bold ${
                 l.id === selectedLayout?.id
-                  ? { backgroundColor: INK, borderColor: INK, color: CARD }
-                  : { backgroundColor: CARD, borderColor: RULE, color: INK }
-              }
+                  ? "bg-primary border-primary text-on-primary"
+                  : "bg-surface-container-lowest border-outline-variant text-on-surface"
+              }`}
             >
               {l.name}
             </button>
@@ -207,12 +188,8 @@ export default function Rates() {
           <>
             <div className="mb-3 grid gap-2.5 sm:grid-cols-2">
               {perUnitActivities.map((a) => (
-                <div
-                  key={a.id}
-                  className="flex items-center justify-between gap-2 rounded-lg border p-3.5"
-                  style={{ backgroundColor: CARD, borderColor: RULE, borderLeft: `6px solid ${MEASURED}` }}
-                >
-                  <span className="text-sm font-bold">{a.name} — flat rate per apartment</span>
+                <div key={a.id} className="built-up-pattern border border-outline-variant flex items-center justify-between gap-2 p-3.5">
+                  <span className="text-body-md font-bold">{a.name} — flat rate per apartment</span>
                   <NumberField
                     value={selectedLayout.unit_rates[a.id] ?? 0}
                     onCommit={(next) => setUnitRate(selectedLayout.id, a.id, next)}
@@ -224,13 +201,9 @@ export default function Rates() {
 
             <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
               {presentSpaces.map((s) => (
-                <div
-                  key={s.id}
-                  className="rounded-lg border p-3.5"
-                  style={{ backgroundColor: CARD, borderColor: RULE, borderLeft: `6px solid ${MEASURED}` }}
-                >
-                  <div className="mb-2 text-sm font-bold">{s.name}</div>
-                  <div className="mb-2.5 flex flex-wrap gap-3 text-xs" style={{ color: INK_SOFT }}>
+                <div key={s.id} className="built-up-pattern border border-outline-variant p-3.5">
+                  <div className="mb-2 text-body-md font-bold">{s.name}</div>
+                  <div className="mb-2.5 flex flex-wrap gap-3 text-label-sm text-on-surface-variant">
                     <label className="flex items-center gap-1.5">
                       Floor m²
                       <NumberField
@@ -251,14 +224,12 @@ export default function Rates() {
                     </label>
                   </div>
                   {Object.keys(s.rates).length === 0 ? (
-                    <p className="text-xs italic" style={{ color: INK_SOFT }}>
-                      No activity applies here
-                    </p>
+                    <p className="text-label-sm italic text-on-surface-variant">No activity applies here</p>
                   ) : (
                     <div className="grid gap-1.5">
                       {Object.entries(s.rates).map(([activityId, rate]) => (
-                        <div key={activityId} className="flex items-center justify-between gap-2 text-xs">
-                          <span style={{ color: INK_SOFT }}>{activityName(activityId)}</span>
+                        <div key={activityId} className="flex items-center justify-between gap-2 text-label-sm">
+                          <span className="text-on-surface-variant">{activityName(activityId)}</span>
                           <NumberField
                             value={rate}
                             onCommit={(next) => setSpaceRate(selectedLayout.id, s.id, activityId, next)}
@@ -275,8 +246,6 @@ export default function Rates() {
           </>
         )}
       </section>
-
-      <ScreenNav />
-    </PageShell>
+    </PageContent>
   );
 }

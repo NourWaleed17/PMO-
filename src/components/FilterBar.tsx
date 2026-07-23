@@ -1,4 +1,3 @@
-import { CARD, INK, INK_SOFT, RULE } from "../design/direction-c";
 import type { Filters } from "../filters/filters";
 
 export interface FilterOption {
@@ -22,24 +21,18 @@ export function FilterBar({
   layouts?: FilterOption[];
   disciplines?: string[];
 }) {
-  const selectClass = "rounded-md border px-3 py-1.5 text-sm";
-  const selectStyle = { backgroundColor: CARD, borderColor: RULE, color: INK };
+  const selectClass =
+    "border border-outline-variant bg-surface-container-lowest text-on-surface text-body-md px-3 py-1.5 rounded-sm focus:border-primary focus:outline-none";
   const hasFilters = Boolean(filters.building || filters.layout || filters.discipline);
 
   return (
-    <div
-      className="mb-6 flex flex-wrap items-center gap-3 rounded-lg border px-4 py-3"
-      style={{ backgroundColor: CARD, borderColor: RULE }}
-    >
-      <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: INK_SOFT }}>
-        Filter
-      </span>
+    <div className="mb-6 flex flex-wrap items-center gap-3 bg-surface-container-lowest border border-outline-variant px-4 py-3">
+      <span className="text-label-sm font-semibold text-on-surface-variant">Filter</span>
 
       {buildings && (
         <select
           aria-label="Filter by building"
           className={selectClass}
-          style={selectStyle}
           value={filters.building ?? ""}
           onChange={(e) => onChange({ ...filters, building: e.target.value || undefined })}
         >
@@ -56,7 +49,6 @@ export function FilterBar({
         <select
           aria-label="Filter by layout"
           className={selectClass}
-          style={selectStyle}
           value={filters.layout ?? ""}
           onChange={(e) => onChange({ ...filters, layout: e.target.value || undefined })}
         >
@@ -73,7 +65,6 @@ export function FilterBar({
         <select
           aria-label="Filter by discipline"
           className={selectClass}
-          style={selectStyle}
           value={filters.discipline ?? ""}
           onChange={(e) => onChange({ ...filters, discipline: e.target.value || undefined })}
         >
@@ -87,12 +78,7 @@ export function FilterBar({
       )}
 
       {hasFilters && (
-        <button
-          type="button"
-          onClick={() => onChange({})}
-          className="text-sm font-semibold underline"
-          style={{ color: INK_SOFT }}
-        >
+        <button type="button" onClick={() => onChange({})} className="text-body-md font-semibold text-primary hover:underline">
           Clear filters
         </button>
       )}

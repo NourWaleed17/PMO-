@@ -1,7 +1,6 @@
-import { ScreenNav } from "../components/ScreenNav";
 import { useModel } from "../data/ModelContext";
-import { Bar, CARD, FLAG, INK, INK_SOFT, MEASURED, PageShell, RULE, SplitMeter, weightStyle } from "../design/direction-c";
-import { formatExact, formatHeadline, formatInt, formatLabel, formatPercent } from "../lib/format";
+import { Card, CompositionBar, PageContent, StatTile, StatusIcon } from "../design/direction-d";
+import { formatExact, formatInt, formatPercent } from "../lib/format";
 import {
   apartmentCount,
   avgCostPerApartment,
@@ -21,165 +20,170 @@ export default function Overview() {
   const buildings = byBuilding(model);
   const disciplines = byDiscipline(model);
   const activities = byActivity(model);
+  const clusterName = model.clusters[0]?.name ?? "Cluster";
 
   return (
-    <PageShell>
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Cluster 1 — cost overview</h1>
-          <p className="text-sm" style={{ color: INK_SOFT }}>
-            {model.buildings.length} buildings · {formatInt(apartments)} apartments · {model.meta.revision}
-          </p>
+    <PageContent>
+      <section className="mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6">
+          <div>
+            <h1 className="text-headline-lg text-primary mb-2">Residential development board overview</h1>
+            <div className="flex flex-wrap gap-4 text-on-surface-variant items-center">
+              <span className="bg-surface-container px-3 py-1 rounded-full text-label-sm">{clusterName}</span>
+              <span className="border-l border-outline-variant pl-4 text-body-md">
+                {formatInt(apartments)} apartments across {model.buildings.filter((b) => b.units.length > 0).length}{" "}
+                buildings plus a basement
+              </span>
+            </div>
+          </div>
+          <div className="md:text-right">
+            <div className="text-label-sm text-on-surface-variant tracking-wide mb-1">Total project cost</div>
+            <div className="font-mono text-[clamp(24px,6vw,40px)] leading-tight text-primary font-bold tabular-nums">
+              {formatExact(cluster.total)} EGP
+            </div>
+          </div>
         </div>
-      </header>
 
-      <div
-        className="mb-6 flex flex-wrap items-center gap-4 rounded-lg border px-4 py-3 text-xs"
-        style={{ backgroundColor: CARD, borderColor: RULE, color: INK_SOFT }}
-      >
-        <span className="flex items-center gap-2">
-          <span className="h-3.5 w-3.5 flex-none rounded-sm" style={{ backgroundColor: MEASURED }} />
-          Measured — built up from areas and rates
-        </span>
-        <span className="flex items-center gap-2">
-          <span className="h-3.5 w-3.5 flex-none rounded-sm border-4" style={{ borderColor: FLAG, backgroundColor: CARD }} />
-          Lump sum — flagged, no build-up. Border weight scales with lump-sum share.
-        </span>
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="col-span-1 bg-surface-container-lowest border border-outline-variant p-6 flex flex-col justify-center">
+            <div className="text-label-sm text-on-surface-variant mb-4">Cost per apartment</div>
+            <div className="font-mono text-headline-md text-primary tabular-nums">{formatExact(avgCost)} EGP</div>
+            <div className="mt-6 pt-6 border-t border-outline-variant">
+              <div className="text-label-sm text-on-surface-variant mb-1">EGP per m² of apartment floor area</div>
+              <div className="font-mono text-body-lg text-primary tabular-nums">{formatExact(perM2)}</div>
+            </div>
+          </div>
 
-      {/* Hero */}
-      <div className="mb-6 rounded-xl border p-5 sm:p-6" style={{ backgroundColor: CARD, borderColor: RULE }}>
-        <p className="mb-1.5 text-xs uppercase tracking-wide" style={{ color: INK_SOFT }}>
-          Cluster total
-        </p>
-        <p className="text-[clamp(36px,8vw,56px)] font-extrabold leading-none">
-          {formatHeadline(cluster.total)}
-          <span className="ml-2 text-[0.4em] font-semibold" style={{ color: INK_SOFT }}>
-            M EGP
-          </span>
-        </p>
-        <p className="mb-4 mt-1 text-sm" style={{ color: INK_SOFT }}>
-          {formatExact(cluster.total)} exact
-        </p>
-        <SplitMeter split={cluster} />
-        <div className="mt-2 flex flex-wrap justify-between gap-2 text-xs" style={{ color: INK_SOFT }}>
-          <span>
-            <b style={{ color: INK }}>{formatExact(cluster.measured)}</b> measured ({formatPercent(cluster.measuredShare)})
-          </span>
-          <span>
-            <b style={{ color: INK }}>{formatExact(cluster.lump)}</b> lump sum ({formatPercent(cluster.lumpShare)})
-          </span>
-        </div>
-      </div>
-
-      {/* KPI tiles */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-lg border-2 p-4" style={{ backgroundColor: CARD, borderColor: RULE }}>
-          <div className="text-xl font-extrabold sm:text-2xl">{formatInt(apartments)}</div>
-          <div className="mt-1 text-xs" style={{ color: INK_SOFT }}>
-            Apartments
-          </div>
-        </div>
-        <div className="rounded-lg border-2 p-4" style={{ backgroundColor: CARD, borderColor: RULE }}>
-          <div className="text-xl font-extrabold sm:text-2xl">{formatExact(avgCost)}</div>
-          <div className="mt-1 text-xs" style={{ color: INK_SOFT }}>
-            Average cost / apartment, EGP
-          </div>
-        </div>
-        <div className="rounded-lg border-2 p-4" style={{ backgroundColor: CARD, borderColor: RULE }}>
-          <div className="text-xl font-extrabold sm:text-2xl">{formatExact(perM2)}</div>
-          <div className="mt-1 text-xs" style={{ color: INK_SOFT }}>
-            EGP per m² of apartment floor area
-          </div>
-        </div>
-        <div className="rounded-lg border-2 p-4" style={{ backgroundColor: CARD, borderColor: FLAG }}>
-          <div className="text-xl font-extrabold sm:text-2xl">{formatPercent(cluster.lumpShare)}</div>
-          <div className="mt-1 text-xs" style={{ color: INK_SOFT }}>
-            Of total is lump sum
-          </div>
-          <div className="mt-1.5 text-xs font-bold" style={{ color: FLAG }}>
-            no build-up behind it
-          </div>
-        </div>
-      </div>
-
-      {/* By building */}
-      <section className="mb-6">
-        <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="text-base font-extrabold">Cost by building</h2>
-          <span className="text-xs" style={{ color: INK_SOFT }}>
-            Border weight = share that is lump sum
-          </span>
-        </div>
-        <div className="grid gap-2.5">
-          {buildings.map((b) => (
-            <div key={b.id} className="rounded-lg p-3.5" style={{ backgroundColor: CARD, ...weightStyle(b.lumpShare) }}>
-              <div className="mb-2 flex items-baseline justify-between gap-2 text-sm">
-                <span className="font-bold">
-                  {b.name}{" "}
-                  <span className="text-xs font-normal" style={{ color: INK_SOFT }}>
-                    {b.buildingType} · {b.units > 0 ? `${formatInt(b.units)} apartments` : "no units"}
-                  </span>
+          <div className="col-span-2 bg-surface-container-lowest border border-outline-variant p-6">
+            <div className="flex justify-between items-center mb-6">
+              <div className="text-headline-sm font-semibold">Cost composition split</div>
+              <div className="flex gap-4">
+                <StatusIcon substantiated={false} label="Lump-sum" />
+                <StatusIcon substantiated label="Built-up" />
+              </div>
+            </div>
+            <CompositionBar split={cluster} />
+            <div className="flex justify-between font-mono text-body-md mt-4">
+              <span className="flex items-center gap-2 italic text-on-surface-variant">
+                <span className="material-symbols-outlined text-[16px]">edit</span>
+                {formatExact(cluster.lump)} EGP
+              </span>
+              <span className="flex items-center gap-2 font-bold">
+                {formatExact(cluster.measured)} EGP
+                <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  link
                 </span>
-                <span className="font-bold">{formatExact(b.total)}</span>
-              </div>
-              <Bar split={b} />
-              <div className="mt-1.5 text-xs" style={{ color: INK_SOFT }}>
-                {b.lumpShare >= 1 ? "100% lump sum — no units to measure against" : `${formatPercent(b.lumpShare)} lump sum`}
-              </div>
+              </span>
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
-      {/* By discipline */}
-      <section className="mb-6">
-        <h2 className="mb-3 text-base font-extrabold">Cost by discipline</h2>
-        <div className="grid gap-2.5 sm:grid-cols-2">
-          {disciplines.map((d) => (
-            <div key={d.id} className="rounded-lg p-3.5" style={{ backgroundColor: CARD, ...weightStyle(d.lumpShare) }}>
-              <div className="mb-2 flex items-baseline justify-between gap-2 text-sm">
-                <span className="font-bold">{formatLabel(d.id)}</span>
-                <span className="font-bold">{formatExact(d.total)}</span>
-              </div>
-              <Bar split={d} />
-              <div className="mt-1.5 text-xs" style={{ color: INK_SOFT }}>
-                {formatPercent(d.shareOfCluster)} of cluster total · {formatPercent(d.lumpShare)} lump sum
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-5 flex flex-col gap-6">
+          <Card title="Cost by building unit" padded={false}>
+            <div className="p-6 space-y-4">
+              {buildings.map((b) => (
+                <div
+                  key={b.id}
+                  className={`flex justify-between items-center p-3 border ${
+                    b.lumpShare >= 1 ? "lump-sum-dashed bg-surface-container-low" : "built-up-pattern border-outline-variant"
+                  }`}
+                >
+                  <div>
+                    <div className={b.lumpShare >= 1 ? "italic" : "font-bold"}>{b.name}</div>
+                    <StatusIcon
+                      substantiated={b.lumpShare < 1}
+                      label={b.lumpShare >= 1 ? `Lump-sum (${formatPercent(b.lumpShare)})` : "Built-up"}
+                    />
+                  </div>
+                  <div className={`font-mono text-headline-sm tabular-nums ${b.lumpShare >= 1 ? "italic" : "font-bold"}`}>
+                    {formatExact(b.total)}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </Card>
 
-      {/* By activity */}
-      <section className="mb-6">
-        <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="text-base font-extrabold">Cost by activity — apartment finishes</h2>
-          <span className="text-xs" style={{ color: INK_SOFT }}>
-            All measured
-          </span>
+          <Card title="Data quality notes">
+            <ul className="space-y-3 text-body-md text-on-surface-variant">
+              <li className="flex gap-2">
+                <span className="material-symbols-outlined text-[18px] shrink-0">edit</span>
+                <span>
+                  <b className="text-on-surface">{formatPercent(cluster.lumpShare)}</b> of the total has no build-up —
+                  elevation paint, public areas, all MEP, and the whole basement.
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span className="material-symbols-outlined text-[18px] shrink-0">edit</span>
+                <span>Alternative basement figures exist in the source, 12.3 M higher — see Buildings for the notes.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="material-symbols-outlined text-[18px] shrink-0">edit</span>
+                <span>Door and window figures are unconfirmed — 49.4% of apartment cost. See Activities.</span>
+              </li>
+            </ul>
+          </Card>
         </div>
-        <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))" }}>
-          {activities.map((a) => (
-            <div
-              key={a.id}
-              className="rounded-lg border p-3.5"
-              style={{ backgroundColor: CARD, borderColor: RULE, borderLeft: `6px solid ${MEASURED}` }}
-            >
-              <div className="mb-0.5 text-sm font-bold">{a.name}</div>
-              <div className="mb-2.5 text-xs" style={{ color: INK_SOFT }}>
-                {a.basisLabel}
-              </div>
-              <div className="text-lg font-extrabold">{formatExact(a.total)}</div>
-              <div className="text-xs" style={{ color: INK_SOFT }}>
-                {formatPercent(a.shareOfFinishes)} of finishes
-              </div>
+
+        <Card
+          title="Apartment finishes breakdown"
+          action={<div className="text-label-sm text-on-surface-variant italic">All figures in EGP</div>}
+          padded={false}
+          className="lg:col-span-7"
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-surface-container border-b border-outline-variant">
+                  <th className="px-6 py-4 text-label-sm font-semibold tracking-wide text-on-surface-variant">Activity type</th>
+                  <th className="px-6 py-4 text-label-sm font-semibold tracking-wide text-on-surface-variant text-right">
+                    Cost (EGP)
+                  </th>
+                  <th className="px-6 py-4 text-label-sm font-semibold tracking-wide text-on-surface-variant text-right">
+                    Weight (%)
+                  </th>
+                  <th className="px-6 py-4 text-label-sm font-semibold tracking-wide text-on-surface-variant text-center">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant">
+                {activities.map((a, i) => (
+                  <tr key={a.id} className={`hover:bg-surface-container transition-colors ${i % 2 ? "bg-surface-container-low" : ""}`}>
+                    <td className="px-6 py-4 font-bold">{a.name}</td>
+                    <td className="px-6 py-4 font-mono text-right font-bold tabular-nums">{formatExact(a.total)}</td>
+                    <td className="px-6 py-4 font-mono text-right tabular-nums">{formatPercent(a.shareOfFinishes)}</td>
+                    <td className="px-6 py-4 text-center">
+                      <StatusIcon substantiated />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="p-6 bg-surface-container-low border-t border-outline-variant flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-6">
+              <StatusIcon substantiated label="Built-up cost" />
+              <StatusIcon substantiated={false} label="Lump-sum estimation" />
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="flex flex-wrap gap-3 text-label-sm text-on-surface-variant">
+              {disciplines.map((d) => (
+                <span key={d.id}>
+                  {d.id === "mep" ? "MEP" : d.id.charAt(0).toUpperCase() + d.id.slice(1)}: {formatExact(d.total)}
+                </span>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
 
-      <ScreenNav />
-    </PageShell>
+      <section className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatTile label="Total apartments" value={`${formatInt(apartments)} units`} />
+        <StatTile label="Buildings in cluster" value={formatInt(model.buildings.length)} />
+        <StatTile label="Cost per m²" value={`${formatExact(perM2)} EGP`} />
+        <StatTile label="Lump-sum share" value={formatPercent(cluster.lumpShare)} valueClassName="text-on-error-container" />
+      </section>
+    </PageContent>
   );
 }

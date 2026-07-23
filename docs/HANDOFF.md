@@ -174,6 +174,70 @@ handoff is just as clean.
       confirmed the banner returns to "matches the seed exactly" and every
       other screen reverts too (criterion #6). Also checked 375px.
 
+## Direction D — Phase 1 UI fully rebuilt (supersedes Direction C)
+
+**2026-07-23, later the same day as the above:** the user supplied a new,
+finished design system — `design/direction-d-capital-executive.md` (tokens)
+and `design/direction-d-capital-executive.html` (a static mockup, "Capital
+Executive Dashboard") — and asked for a full replace. Confirmed explicitly
+via `AskUserQuestion` before touching anything, since it discarded Direction
+C, which had just been built and verified across all five screens. The
+mockup's sidebar nav items (Cost Analysis, Project Health, Vendor
+Management, Archive) don't correspond to anything in this app — adopted the
+visual language (navy/slate palette, IBM Plex Sans + JetBrains Mono, the
+built-up/lump-sum hatch-vs-dashed signature) but wired the sidebar to the
+five real screens instead of copying dead links. Flagged this substitution
+to the user rather than deciding it silently.
+
+- [x] `src/index.css` — Direction D's tokens as a Tailwind v4 `@theme` block
+      (colours, font roles, radii) plus `.built-up-pattern` /
+      `.lump-sum-dashed`, the new measured/lump-sum signature (a diagonal
+      hatch vs. a dashed border — replaces Direction C's border-weight
+      system). **Fonts are self-hosted** (`public/fonts/*.woff2` — IBM Plex
+      Sans, JetBrains Mono, Material Symbols Outlined, all variable fonts,
+      ~1.2 MB total), not linked from Google Fonts: a board dashboard that
+      might get presented on a restricted network or a projector with no
+      internet shouldn't depend on an external CDN for its own text to
+      render. Caught two real bugs verifying this in a browser (not by
+      reading the CSS): (1) the mockup's own `.material-symbols-outlined`
+      class never sets `font-family`, so icons silently rendered as literal
+      words ("dashboard", "link", "edit") — fixed by adding the missing
+      declaration; (2) this sandbox's headless Chromium doesn't route
+      through the outbound proxy the way `curl`/Node do, so the Google
+      Fonts CDN version failed with `ERR_CONNECTION_RESET` in-browser while
+      `curl` to the same URL succeeded — self-hosting sidesteps this
+      entirely rather than fighting proxy config for a network dependency
+      the app shouldn't have anyway.
+- [x] `src/design/direction-d.tsx` — replaces `direction-c.tsx` (deleted).
+      `StatusIcon` (the "link"/"edit" icon pair, filled-navy vs. grey — a
+      second cue alongside the pattern, never colour alone), `CompositionBar`
+      (the built-up/lump-sum split bar), `Card`, `StatTile`, `PageContent`
+      (the page-level padding wrapper).
+- [x] `src/components/AppShell.tsx` — replaces `ScreenNav.tsx` (deleted). A
+      persistent top bar (title, inert Projects/Financials/Compliance links,
+      inert notification/settings icons, a working "Download report" button
+      that calls the same export as Rates) and a desktop sidebar
+      (`hidden md:flex`) wired to the same `useRoute()`/`ModelContext` every
+      screen already used — navigation and editing logic are unchanged, only
+      the chrome around them is new. **Mobile has no sidebar** (a 256px fixed
+      rail has nowhere to go at 375px) — `AppShell` renders a fixed bottom
+      tab bar below `md` instead, same `NAV_ITEMS`, same routing.
+- [x] `src/lib/export.ts` — `downloadModelJson()` pulled out of `Rates.tsx`
+      so both Rates' "Export JSON" and the top bar's "Download report" call
+      the same function. One thing "export" means in this app, not two.
+- [x] All five screens (`Overview`, `Layouts`, `Activities`, `Buildings`,
+      `Rates`) rebuilt for Direction D. **No selector changed** — every
+      screen still calls the exact same functions in `src/selectors/*.ts` it
+      did under Direction C; only the JSX/styling changed. This is the
+      payoff of the selector/component split established in item 1: a full
+      visual replatform touched zero business logic.
+- [x] Re-ran the full acceptance-criteria verification from scratch after
+      the rebuild — all ten still pass, including the real-browser
+      propagation/export/reset check for #4/#5/#6 (see item 6 below; the
+      router-context fix from before Direction D obviously carried over,
+      re-verified it still works under the new chrome). Also re-checked
+      375px on every screen.
+
 Confirm all of the above still holds before doing anything else:
 
 ```
@@ -240,15 +304,19 @@ gradient hero cards).
 
 **Show them and wait for a decision before writing any React component.**
 
-**Decision recorded 2026-07-23: Direction C — "Schedule board" — chosen.**
-The three directions live in `design/` (`direction-a-drawing-set.html`,
-`direction-b-site-ledger.html`, `direction-c-schedule-board.html`, `index.html`
-to compare). Direction C is card-based, chart-forward: KPI tiles, a
-border-weight system where border thickness scales with a card's lump-sum
-share (thin = mostly measured, thick ochre = all lump sum), and activities
-shown as a materials-swatch grid. That's the direction to extend for every
-subsequent screen — don't introduce a different visual system for Layouts,
-Activities, Buildings, or Rates.
+**Decision recorded 2026-07-23: Direction C — "Schedule board" — chosen,
+then superseded the same day.** The three original directions live in
+`design/` (`direction-a-drawing-set.html`, `direction-b-site-ledger.html`,
+`direction-c-schedule-board.html`, `index.html` to compare) — kept for
+history, no longer the build target.
+
+**Direction C was replaced by Direction D — "Capital Executive Dashboard" —
+later on 2026-07-23**, supplied by the user as finished tokens/mockup
+(`design/direction-d-capital-executive.md` / `.html`). See "Direction D —
+Phase 1 UI fully rebuilt" further down for the full account. Direction D
+(navy/slate, IBM Plex Sans + JetBrains Mono, a persistent top bar + sidebar,
+hatch-vs-dashed for built-up/lump-sum) is the current and only visual system
+— don't introduce a third one without an equally explicit decision.
 
 ### 2. Data-access layer — done
 
@@ -330,12 +398,38 @@ acceptance criteria. See "What's not done" above for the handful of
 non-blocking follow-ups (a fresh-eyes design pass, lint in the verify chain,
 committed browser tests, Phase 2 planning) before calling it fully closed.
 
+## Phase 2 — authorized, not yet started
+
+**2026-07-23:** the user explicitly chose "start real Phase 2 (Supabase,
+auth, API)" via `AskUserQuestion`, overriding `docs/CLAUDE.md`'s Phase 1
+scope note below for that specific decision. This does **not** mean Phase 2
+is built — nothing in `src/data/index.ts` has changed, the app still reads
+`seed.json` directly. What actually blocks starting:
+
+- **A live Supabase project.** Cannot be provisioned by an AI session —
+  needs a URL + anon key (and, for schema work, a service-role key or the
+  Supabase CLI) from the user, or explicit direction to scaffold against a
+  local Supabase (Docker is available in this sandbox; the Supabase CLI is
+  not yet installed).
+- **An auth provider.** The brief's Phase 2 plan (`docs/BRIEF.md` section 11)
+  specifies Google SSO — needs an OAuth client from Google Cloud Console.
+- **A schema decision.** `docs/MODEL.md`'s structure (clusters → activities/
+  layouts/buildings, no stored totals) maps reasonably directly to tables,
+  but revisions, the audit log, and the editor/viewer role split (also
+  section 11) need actual design before a migration gets written, not just
+  a literal translation of the current TypeScript types.
+
+Next session: ask the user for the above before writing schema/migration
+code — don't guess a Supabase project structure and build against it
+speculatively.
+
 ## Things to not do
 
-Everything in `docs/BRIEF.md` section 8: auth, database, revisions, audit
-log, service worker, PWA manifest, deployment config, Excel import. If a task
-seems to call for one of these, it's out of scope for Phase 1 — flag it
-instead of building it.
+Everything in `docs/BRIEF.md` section 8 remains out of scope **except**
+Phase 2 backend work, which the user explicitly authorized (see above) —
+but "authorized" isn't "built"; see the blockers above before writing
+Supabase code. Service worker, PWA manifest, and Excel import are still not
+requested and still shouldn't be started speculatively.
 
 ## If you're an AI picking this up cold
 
@@ -350,8 +444,17 @@ instead of building it.
    `layoutTotal`, rate groups always sum to the activity total) that a change
    must not break.
 4. Trust the browser over the code for anything involving cross-component
-   state or navigation. This session shipped a real bug (`useRoute()` as a
-   plain hook instead of shared context) that every static read of the code
-   looked correct — it only surfaced when a click-through test compared the
-   URL against what was actually rendered. `npm test` and `tsc` both stayed
-   green through it.
+   state or navigation, or an external asset (a font, an icon set). This
+   session shipped two real bugs that every static read of the code looked
+   correct for: `useRoute()` as a plain hook instead of shared context
+   (only surfaced via a click-through test comparing the URL against what
+   actually rendered), and a missing `font-family` on the Material Symbols
+   class (only surfaced by screenshotting and seeing literal words instead
+   of icons). `npm test` and `tsc` stayed green through both.
+5. The UI is Direction D now, not Direction C — see "Direction D — Phase 1
+   UI fully rebuilt" above. Fonts are self-hosted in `public/fonts/`; don't
+   re-add a Google Fonts `<link>`.
+6. Phase 2 is authorized but not started — see "Phase 2 — authorized, not
+   yet started" above before writing any Supabase/auth code. It needs
+   information only the user can provide (project credentials, OAuth
+   client, schema decisions), not more scaffolding built on guesses.

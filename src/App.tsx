@@ -1,3 +1,4 @@
+import { AppShell } from "./components/AppShell";
 import Activities from "./screens/Activities";
 import Buildings from "./screens/Buildings";
 import Layouts from "./screens/Layouts";
@@ -10,7 +11,9 @@ function App() {
   return (
     <RouteProvider>
       <ModelProvider>
-        <Screen />
+        <AppShell>
+          <Screen />
+        </AppShell>
       </ModelProvider>
     </RouteProvider>
   );

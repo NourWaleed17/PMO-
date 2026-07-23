@@ -44,6 +44,7 @@ verify.ts              regression harness
 npm run dev            local dev server
 npm run verify         npx tsx verify.ts — must pass before any commit
 npm test               vitest
+npm run lint           oxlint
 ```
 
 ## Known-good numbers
@@ -66,11 +67,30 @@ why before continuing.
 
 Frontend only. Vite + React + TypeScript + Tailwind + Recharts + zod + vitest.
 `seed.json` imported directly, edits held in React state, with reset and export.
+All five screens are built; see `docs/HANDOFF.md` for status.
 
-**Do not build:** auth, database, revisions, audit log, service worker, PWA
-manifest, deployment config, Excel import. Those are Phases 2–4 and building
-them now makes them worse, because the data model is not yet confirmed against
-the architectural drawings.
+**Do not build:** database, revisions, audit log, service worker, PWA
+manifest, deployment config, Excel import. Those remain out of scope and
+building them speculatively makes them worse, because the data model is not
+yet confirmed against the architectural drawings.
+
+**Exception — auth/database (Phase 2):** the user explicitly authorized
+starting real Phase 2 (Supabase, auth, API) on 2026-07-23, overriding the
+"do not build" above for that specific work. Nothing is built yet — see
+"Phase 2 — authorized, not yet started" in `docs/HANDOFF.md` for what's
+actually blocking it (live credentials, an OAuth client, a schema decision,
+none of which an AI session can supply on its own) before writing
+schema/migration code.
+
+## Design system
+
+**Direction D — "Capital Executive Dashboard"** (navy/slate, IBM Plex Sans +
+JetBrains Mono, persistent top bar + sidebar). Tokens in
+`design/direction-d-capital-executive.md`, implemented in
+`src/design/direction-d.tsx` and `src/index.css`. This superseded an earlier
+choice (Direction C) on 2026-07-23 — see `docs/HANDOFF.md` for the full
+history. Extend this system for any new screen; don't introduce a second one
+without an equally explicit decision.
 
 ## Style
 

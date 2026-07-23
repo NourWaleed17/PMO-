@@ -1,5 +1,5 @@
 /** The measured/lump-sum split shape every screen's cards and bars render
- *  against (docs/CLAUDE.md rule 3). Defined once here — `design/direction-c`
+ *  against (docs/CLAUDE.md rule 3). Defined once here — `design/direction-d`
  *  imports the type for its components, every selector that needs the shape
  *  imports `split()` — rather than each selector re-deriving its own copy. */
 
