@@ -6,6 +6,10 @@ plus a basement, 98 apartments, 147,629,110.42 EGP.
 Read `docs/BRIEF.md` before starting any task. It is the spec and its acceptance
 criteria are the definition of done.
 
+**Read `docs/HANDOFF.md` next.** It tracks exactly what's built, what isn't,
+and the required order of work. Keep it up to date — it's what the next
+session (human or AI) reads to pick this up cold.
+
 ## Three rules that override convenience
 
 1. **`src/engine/engine.ts` is the only place arithmetic happens.** Components
@@ -26,6 +30,7 @@ criteria are the definition of done.
 
 ```
 docs/BRIEF.md          full spec — read this first
+docs/HANDOFF.md         current status and required next steps, in order
 docs/MODEL.md          data model contract and extension rules
 src/engine/engine.ts   pure calculation, no I/O
 src/data/seed.json     the model — inputs only, no stored totals
