@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { formatPercent } from "../lib/format";
+import type { SplitFigure } from "../selectors/split";
 
 /** Direction C — "schedule board" — chosen 2026-07-23 (see docs/HANDOFF.md
  *  item 1). Every screen extends this same token set and signature system;
@@ -13,14 +14,6 @@ export const FLAG_SOFT = "#f1e2b8";
 export const MEASURED = "#3a4650";
 export const CARD = "#ffffff";
 export const PAGE_BG = "#eceeef";
-
-export interface SplitFigure {
-  total: number;
-  measured: number;
-  lump: number;
-  measuredShare: number;
-  lumpShare: number;
-}
 
 /** Border weight is the direction's signature cue: thickness and colour
  *  scale continuously with a card's lump-sum share, so "how much of this

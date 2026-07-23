@@ -95,6 +95,32 @@ handoff is just as clean.
       measured activities at all") rather than "no data found." Verified
       in-browser at 1280px and 375px, plus filtering to Building 12 and to
       the basement (empty state) by clicking through in a real browser.
+- [x] `src/selectors/split.ts` — pulled the `SplitFigure` type and its
+      `split()` helper out of `overview.ts` into one shared module (it had
+      drifted into two near-identical copies — one in `overview.ts`, one
+      redeclared in `design/direction-c.tsx` while factoring that out
+      earlier). Both now import from here; `overview.ts` re-exports the type
+      so nothing importing it from there broke.
+- [x] `src/selectors/buildings.ts` + `buildings.test.ts` — one building's
+      layouts (measured) and `lump_sums[]` (unmeasured) side by side, first
+      screen to render individual lump-sum line items rather than a rolled-up
+      split. A test asserts total/measured/lump match `byBuilding()` in
+      `overview.ts` exactly for every building, reproduces the four
+      known-good building totals, and confirms the basement (0 units, 3 lump
+      sums) yields `layouts: []` with all three lump sums intact rather than
+      breaking.
+- [x] `src/screens/Buildings.tsx` — fourth real screen, Direction C. Four
+      building cards, then the selected building's split meter, its layouts
+      (measured, with count × cost/apartment), and its lump sums as
+      individual cards — each carries the `note` field verbatim where the
+      seed has one (the basement's three alternative-figure notes). "No
+      apartments in this building" replaces an empty layouts list rather
+      than rendering nothing. Verified in-browser at 1280px and 375px on
+      both a normal building and the basement; one apparent bug (a lump-sum
+      split meter showing a partial fill for the 0%-measured basement)
+      turned out to be the `motion-safe` width transition still animating at
+      screenshot time, not a real defect — confirmed by reading the DOM
+      after the transition settled.
 
 Confirm all of the above still holds before doing anything else:
 
@@ -107,8 +133,8 @@ npm run build && rm -rf dist
 
 ## What's not done — in order
 
-Items 1–4 and screens 1–3 of item 5 are done (kept below for context). Pick up
-at **item 5, screen 4 (Buildings)**.
+Items 1–4 and screens 1–4 of item 5 are done (kept below for context). Pick up
+at **item 5, screen 5 (Rates)** — the last screen.
 
 ### 1. Design directions — done, decision recorded
 
@@ -164,38 +190,43 @@ investigate if totals drift.
    `src/selectors/activities.ts`. See "What's done" above. This is also
    where the global filters (`src/filters/filters.ts`, `FilterBar`) were
    introduced — reuse them here, don't reinvent per screen.
-4. **Buildings — next.** Drill into one building: layouts, unit counts,
-   measured cost, lump sums. The basement (`b.units = []`, 3 lump sums) must
-   render without special-casing — `byBuilding()` in
-   `src/selectors/overview.ts` already handles this shape correctly (see the
-   extension test); reuse the pattern rather than re-deriving it. This
-   screen needs a building selector (reuse the `buildingOptions` pattern
-   from `activities.ts`, or add a `?building=` deep link from Overview's and
-   Activities' building cards/filter into Buildings once it exists) and
-   should show each building's `lump_sums[]` directly — no screen has
-   rendered an individual lump-sum line item yet, only rolled-up
-   measured/lump splits. Add `src/selectors/buildings.ts`. Flip
-   `buildings.built = true` in `src/components/ScreenNav.tsx` once it ships.
-5. **Rates** — the editing surface: change any rate/area/count, persistent
-   delta-vs-seed banner, reset, export JSON. First screen that needs React
-   state for edits (all others so far are pure derivations of `seed.json`).
+4. **Buildings — done.** `src/screens/Buildings.tsx` +
+   `src/selectors/buildings.ts`. See "What's done" above. Buildings does
+   *not* use the URL filters (it has its own building-card selector, same
+   pattern as Layouts/Activities) — the `ScreenNav.navigate()` query-reset
+   note below is still accurate, since Buildings never wrote to `search`.
+5. **Rates — next, and last screen.** The editing surface: change any
+   rate/area/count, persistent delta-vs-seed banner, reset, export JSON.
+   First screen that needs React state for edits — every screen so far is a
+   pure derivation of `seed.json` straight from `src/data/index.ts`. This is
+   also where acceptance criteria #4, #5, #6 get proven (see the table
+   below) — they can't be satisfied by any earlier screen, so don't consider
+   Phase 1 close to done until Rates exists and those three are checked.
+   Suggested shape: lift the edited model into a React context or a single
+   `useState<Model>` near the app root (not per-screen state — every screen
+   reads `model` from `src/data/index.ts` today via a plain import; Rates
+   editing means that needs to become props/context instead, which touches
+   every screen file to swap the import for the passed-down value). Reset =
+   replace the edited state with a fresh `loadModel()` call. Export = current
+   edited state as an already-valid `Model`, serialized with `JSON.stringify`
+   — it re-imports cleanly for free since it's the same shape `schema.ts`
+   already validates.
 
 Filters (cluster, building, layout, discipline, activity, substantiated) are
 global and reflected in the URL. `building`/`layout`/`discipline` are wired
-(`src/filters/filters.ts`, `FilterBar`) and used by Activities today — reuse
-them on Buildings/Rates rather than adding screen-local filter state. Add
-`substantiated` to `Filters` when Buildings needs it (a lump-sum list is
-exactly where "show only unsubstantiated" becomes useful) and `activity` if
-Rates needs to jump straight to editing one activity's rate. `cluster` still
-isn't exposed in the UI — there's only one — but every selector already
-groups by `cluster_id`.
+(`src/filters/filters.ts`, `FilterBar`) and used by Activities today; neither
+Buildings nor Rates need them yet (Buildings has its own single-building
+selector; Rates is an editing surface, not a filtered view). Add
+`substantiated` to `Filters` if a later screen needs "show only
+unsubstantiated," and `activity` if Rates should deep-link to editing one
+activity's rate. `cluster` still isn't exposed in the UI — there's only
+one — but every selector already groups by `cluster_id`.
 
-One thing to note for whoever builds Buildings/Rates: `ScreenNav`'s
-`navigate()` resets the query string on every screen change (see
-`src/routing/router.ts` — `navigate` calls `push(pathname, new
-URLSearchParams())`). That's fine while only Activities reads filters; once
-a second screen does, decide deliberately whether switching screens should
-carry filters over or reset them — don't let it happen by accident.
+One thing to note for whoever builds Rates: `ScreenNav`'s `navigate()`
+resets the query string on every screen change (see `src/routing/router.ts`
+— `navigate` calls `push(pathname, new URLSearchParams())`). That's still
+fine — only Activities reads `search`, and nothing links into Activities
+with filters pre-set yet. Revisit if that changes.
 
 ### 6. Full acceptance criteria (`docs/BRIEF.md` section 7)
 
@@ -209,10 +240,10 @@ Check every one before calling Phase 1 done:
 | 4 | Editing window rate updates total/chart/building/per-apartment together | not started — needs Rates screen |
 | 5 | Export JSON re-imports and reproduces edited state | not started — needs Rates screen |
 | 6 | Reset returns exactly to seed | not started — needs Rates screen |
-| 7 | Basement (0 units, 3 lump sums) renders correctly everywhere | done on Overview; N/A on Layouts/Activities (space/activity-level only, no buildings rendered); needs 4–5 |
-| 8 | Filtering to one activity doesn't break chart layout | done on Activities (verified in-browser, incl. the basement empty state); recheck once Buildings/Rates add charts under filters |
-| 9 | Usable at 375px width | done on Overview + Layouts + Activities (verified in-browser); needs screens 4–5 |
-| 10 | Every figure shows measured vs. lump sum | done on Overview + Layouts + Activities (Layouts/Activities are 100% measured, stated explicitly on both); needs screens 4–5 |
+| 7 | Basement (0 units, 3 lump sums) renders correctly everywhere | done on Overview + Buildings (verified in-browser: empty layouts, all 3 lump sums with notes); N/A on Layouts/Activities |
+| 8 | Filtering to one activity doesn't break chart layout | done on Activities (verified in-browser, incl. the basement empty state); recheck once Rates adds charts under filters, if it does |
+| 9 | Usable at 375px width | done on Overview + Layouts + Activities + Buildings (verified in-browser); needs Rates |
+| 10 | Every figure shows measured vs. lump sum | done on Overview + Layouts + Activities + Buildings; needs Rates |
 
 ## Things to not do
 

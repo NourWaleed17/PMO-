@@ -1,29 +1,11 @@
-import { lineItems, summarise, type LineItem, type Model } from "../engine/engine";
+import { lineItems, summarise, type Model } from "../engine/engine";
+import { split, type SplitFigure } from "./split";
 
 /** Shapes the Overview screen needs beyond what `engine.ts` exposes directly.
  *  Never edit the engine to produce these — derive them from its output
  *  instead (see docs/CLAUDE.md rule 1). */
 
-export interface SplitFigure {
-  total: number;
-  measured: number;
-  lump: number;
-  measuredShare: number;
-  lumpShare: number;
-}
-
-function split(rows: LineItem[]): SplitFigure {
-  const total = rows.reduce((a, r) => a + r.total, 0);
-  const measured = rows.filter((r) => r.substantiated).reduce((a, r) => a + r.total, 0);
-  const lump = total - measured;
-  return {
-    total,
-    measured,
-    lump,
-    measuredShare: total ? measured / total : 0,
-    lumpShare: total ? lump / total : 0,
-  };
-}
+export type { SplitFigure };
 
 export function clusterSplit(model: Model): SplitFigure {
   return split(lineItems(model));

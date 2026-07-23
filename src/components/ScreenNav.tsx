@@ -13,7 +13,7 @@ export const NAV_ITEMS: NavItem[] = [
   { path: "/", label: "Overview", built: true },
   { path: "/layouts", label: "Layouts", built: true },
   { path: "/activities", label: "Activities", built: true },
-  { path: "/buildings", label: "Buildings", built: false },
+  { path: "/buildings", label: "Buildings", built: true },
   { path: "/rates", label: "Rates", built: false },
 ];
 
