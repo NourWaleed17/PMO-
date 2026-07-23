@@ -1,0 +1,1233 @@
+{
+  "meta": {
+    "revision": "Rev01",
+    "source": "Resedential_Rev01.xlsx / Sheet1",
+    "currency": "EGP",
+    "extracted": "2026-07-23"
+  },
+  "clusters": [
+    {
+      "id": "cluster_1",
+      "name": "Cluster 1"
+    }
+  ],
+  "activities": [
+    {
+      "id": "hdf_flooring",
+      "name": "HDF flooring",
+      "basis": "floor_area",
+      "uom": "m2",
+      "discipline": "architecture",
+      "group": "Flooring"
+    },
+    {
+      "id": "ceramic_flooring",
+      "name": "Ceramic & porcelain flooring",
+      "basis": "floor_area",
+      "uom": "m2",
+      "discipline": "architecture",
+      "group": "Flooring"
+    },
+    {
+      "id": "ceramic_walls",
+      "name": "Ceramic & porcelain walls",
+      "basis": "wall_area",
+      "uom": "m2",
+      "discipline": "architecture",
+      "group": "Wall finishes"
+    },
+    {
+      "id": "painting_walls",
+      "name": "Painting — walls",
+      "basis": "wall_area",
+      "uom": "m2",
+      "discipline": "architecture",
+      "group": "Wall finishes"
+    },
+    {
+      "id": "painting_ceiling",
+      "name": "Painting — ceiling",
+      "basis": "floor_area",
+      "uom": "m2",
+      "discipline": "architecture",
+      "group": "Ceiling"
+    },
+    {
+      "id": "gypsum_board",
+      "name": "Gypsum board",
+      "basis": "floor_area",
+      "uom": "m2",
+      "discipline": "architecture",
+      "group": "Ceiling"
+    },
+    {
+      "id": "doors",
+      "name": "Doors",
+      "basis": "per_unit",
+      "uom": "unit",
+      "discipline": "architecture",
+      "group": "Joinery"
+    },
+    {
+      "id": "windows",
+      "name": "Windows",
+      "basis": "per_unit",
+      "uom": "unit",
+      "discipline": "architecture",
+      "group": "Joinery"
+    }
+  ],
+  "layouts": [
+    {
+      "id": "edge",
+      "name": "Apartment Edge",
+      "spaces": [
+        {
+          "id": "terrace",
+          "name": "Terrace",
+          "floor_area": 5.69,
+          "wall_area": 10.22,
+          "rates": {
+            "ceramic_flooring": 350
+          }
+        },
+        {
+          "id": "reception_and_dinning",
+          "name": "Reception & Dinning",
+          "floor_area": 32.29,
+          "wall_area": 78.73,
+          "rates": {
+            "ceramic_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "maid_room",
+          "name": "Maid Room",
+          "floor_area": 3.78,
+          "wall_area": 21.45,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "maid_wc",
+          "name": "Maid WC",
+          "floor_area": 1.81,
+          "wall_area": 14.190000000000001,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "kitchen",
+          "name": "Kitchen",
+          "floor_area": 7.08,
+          "wall_area": 30.41,
+          "rates": {
+            "ceramic_flooring": 350,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "vestibule",
+          "name": "Vestibule",
+          "floor_area": 3.71,
+          "wall_area": 20.51,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "lobby",
+          "name": "Lobby",
+          "floor_area": 12.75,
+          "wall_area": 78.33,
+          "rates": {
+            "ceramic_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "mbedroom",
+          "name": "M.Bedroom",
+          "floor_area": 13.922,
+          "wall_area": 41.53,
+          "rates": {
+            "hdf_flooring": 650,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "powder_room",
+          "name": "Powder room",
+          "floor_area": 4.8,
+          "wall_area": 14.2,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "guest_wc",
+          "name": "Guest WC",
+          "floor_area": 1.74,
+          "wall_area": 14.575,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "dressing",
+          "name": "Dressing",
+          "floor_area": 2.88,
+          "wall_area": 18.25,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "master_wc",
+          "name": "Master WC",
+          "floor_area": 3.05,
+          "wall_area": 18.6,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "bedroom_01",
+          "name": "Bedroom 01",
+          "floor_area": 13.73,
+          "wall_area": 43.56,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "bedroom_02",
+          "name": "Bedroom 02",
+          "floor_area": 11.678,
+          "wall_area": 40.31,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "terrace_2",
+          "name": "Terrace 2",
+          "floor_area": 3.782,
+          "wall_area": 25.3275,
+          "rates": {
+            "ceramic_flooring": 350
+          }
+        },
+        {
+          "id": "shared_wc",
+          "name": "Shared WC",
+          "floor_area": 3.81,
+          "wall_area": 21.09,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "public_corridor",
+          "name": "Public Corridor",
+          "floor_area": 4.96,
+          "wall_area": 26.02,
+          "rates": {}
+        }
+      ],
+      "unit_rates": {
+        "doors": 75000,
+        "windows": 120000
+      }
+    },
+    {
+      "id": "middle",
+      "name": "Apartment Middle",
+      "spaces": [
+        {
+          "id": "terrace",
+          "name": "Terrace",
+          "floor_area": 6.46,
+          "wall_area": 11.6,
+          "rates": {
+            "ceramic_flooring": 350
+          }
+        },
+        {
+          "id": "reception_and_dinning",
+          "name": "Reception & Dinning",
+          "floor_area": 30.66,
+          "wall_area": 64.65,
+          "rates": {
+            "ceramic_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "maid_room",
+          "name": "Maid Room",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "maid_wc",
+          "name": "Maid WC",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "kitchen",
+          "name": "Kitchen",
+          "floor_area": 9.56,
+          "wall_area": 33.17,
+          "rates": {
+            "ceramic_flooring": 350,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "vestibule",
+          "name": "Vestibule",
+          "floor_area": 6.13,
+          "wall_area": 30.42,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "lobby",
+          "name": "Lobby",
+          "floor_area": 11.870000000000001,
+          "wall_area": 68.84,
+          "rates": {
+            "ceramic_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "mbedroom",
+          "name": "M.Bedroom",
+          "floor_area": 14.77,
+          "wall_area": 41.23,
+          "rates": {
+            "hdf_flooring": 650,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "powder_room",
+          "name": "Powder room",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "guest_wc",
+          "name": "Guest WC",
+          "floor_area": 2.71,
+          "wall_area": 1.64,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "dressing",
+          "name": "Dressing",
+          "floor_area": 4.41,
+          "wall_area": 23.37,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "master_wc",
+          "name": "Master WC",
+          "floor_area": 5.04,
+          "wall_area": 24.54,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "bedroom_01",
+          "name": "Bedroom 01",
+          "floor_area": 14.01,
+          "wall_area": 42.37,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "bedroom_02",
+          "name": "Bedroom 02",
+          "floor_area": 14.014,
+          "wall_area": 43.53,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "terrace_2",
+          "name": "Terrace 2",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "ceramic_flooring": 350
+          }
+        },
+        {
+          "id": "shared_wc",
+          "name": "Shared WC",
+          "floor_area": 4.02,
+          "wall_area": 22.26,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "public_corridor",
+          "name": "Public Corridor",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {}
+        }
+      ],
+      "unit_rates": {
+        "doors": 75000,
+        "windows": 120000
+      }
+    },
+    {
+      "id": "apt_1",
+      "name": "Apartment 1",
+      "spaces": [
+        {
+          "id": "terrace",
+          "name": "Terrace",
+          "floor_area": 5.79,
+          "wall_area": 30.47,
+          "rates": {
+            "ceramic_flooring": 350
+          }
+        },
+        {
+          "id": "reception_and_dinning",
+          "name": "Reception & Dinning",
+          "floor_area": 31.41,
+          "wall_area": 64.735,
+          "rates": {
+            "ceramic_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "maid_room",
+          "name": "Maid Room",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "maid_wc",
+          "name": "Maid WC",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "kitchen",
+          "name": "Kitchen",
+          "floor_area": 6.46,
+          "wall_area": 27.9,
+          "rates": {
+            "ceramic_flooring": 350,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "vestibule",
+          "name": "Vestibule",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "lobby",
+          "name": "Lobby",
+          "floor_area": 12.34,
+          "wall_area": 78.33,
+          "rates": {
+            "ceramic_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "mbedroom",
+          "name": "M.Bedroom",
+          "floor_area": 14.96,
+          "wall_area": 46.56,
+          "rates": {
+            "hdf_flooring": 650,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "powder_room",
+          "name": "Powder room",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "guest_wc",
+          "name": "Guest WC",
+          "floor_area": 2.04,
+          "wall_area": 15.37,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "dressing",
+          "name": "Dressing",
+          "floor_area": 2.59,
+          "wall_area": 17.46,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "master_wc",
+          "name": "Master WC",
+          "floor_area": 4.07,
+          "wall_area": 22.05,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "bedroom_01",
+          "name": "Bedroom 01",
+          "floor_area": 15.84,
+          "wall_area": 42.45,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "bedroom_02",
+          "name": "Bedroom 02",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "terrace_2",
+          "name": "Terrace 2",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "ceramic_flooring": 350
+          }
+        },
+        {
+          "id": "shared_wc",
+          "name": "Shared WC",
+          "floor_area": 4.07,
+          "wall_area": 23.21,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "public_corridor",
+          "name": "Public Corridor",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {}
+        }
+      ],
+      "unit_rates": {
+        "doors": 60000,
+        "windows": 82881
+      }
+    },
+    {
+      "id": "apt_2",
+      "name": "Apartment 2",
+      "spaces": [
+        {
+          "id": "terrace",
+          "name": "Terrace",
+          "floor_area": 5.36,
+          "wall_area": 30.8055,
+          "rates": {
+            "ceramic_flooring": 350
+          }
+        },
+        {
+          "id": "reception_and_dinning",
+          "name": "Reception & Dinning",
+          "floor_area": 29.55,
+          "wall_area": 62.53,
+          "rates": {
+            "ceramic_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "maid_room",
+          "name": "Maid Room",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "maid_wc",
+          "name": "Maid WC",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "kitchen",
+          "name": "Kitchen",
+          "floor_area": 6.33,
+          "wall_area": 16.62,
+          "rates": {
+            "ceramic_flooring": 350,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "vestibule",
+          "name": "Vestibule",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "lobby",
+          "name": "Lobby",
+          "floor_area": 8.52,
+          "wall_area": 55.3,
+          "rates": {
+            "ceramic_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "mbedroom",
+          "name": "M.Bedroom",
+          "floor_area": 12.94,
+          "wall_area": 38.14,
+          "rates": {
+            "hdf_flooring": 650,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "powder_room",
+          "name": "Powder room",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "guest_wc",
+          "name": "Guest WC",
+          "floor_area": 2.33,
+          "wall_area": 16.62,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "dressing",
+          "name": "Dressing",
+          "floor_area": 6.1,
+          "wall_area": 28.25,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "master_wc",
+          "name": "Master WC",
+          "floor_area": 2.52,
+          "wall_area": 22.76,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "bedroom_01",
+          "name": "Bedroom 01",
+          "floor_area": 15.34,
+          "wall_area": 42.14,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "bedroom_02",
+          "name": "Bedroom 02",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "terrace_2",
+          "name": "Terrace 2",
+          "floor_area": 10.66,
+          "wall_area": 37.42,
+          "rates": {
+            "ceramic_flooring": 350
+          }
+        },
+        {
+          "id": "shared_wc",
+          "name": "Shared WC",
+          "floor_area": 3.46,
+          "wall_area": 20.09,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "public_corridor",
+          "name": "Public Corridor",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {}
+        }
+      ],
+      "unit_rates": {
+        "doors": 60000,
+        "windows": 82881
+      }
+    },
+    {
+      "id": "apt_3",
+      "name": "Apartment 3",
+      "spaces": [
+        {
+          "id": "terrace",
+          "name": "Terrace",
+          "floor_area": 6.07,
+          "wall_area": 31.295,
+          "rates": {
+            "ceramic_flooring": 350
+          }
+        },
+        {
+          "id": "reception_and_dinning",
+          "name": "Reception & Dinning",
+          "floor_area": 32.72,
+          "wall_area": 65.67,
+          "rates": {
+            "ceramic_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "maid_room",
+          "name": "Maid Room",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "maid_wc",
+          "name": "Maid WC",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "kitchen",
+          "name": "Kitchen",
+          "floor_area": 7.23,
+          "wall_area": 30.21,
+          "rates": {
+            "ceramic_flooring": 350,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "vestibule",
+          "name": "Vestibule",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "lobby",
+          "name": "Lobby",
+          "floor_area": 7.119999999999999,
+          "wall_area": 42.769999999999996,
+          "rates": {
+            "ceramic_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "mbedroom",
+          "name": "M.Bedroom",
+          "floor_area": 14.79,
+          "wall_area": 41.29,
+          "rates": {
+            "hdf_flooring": 650,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "powder_room",
+          "name": "Powder room",
+          "floor_area": 1.56,
+          "wall_area": 13.52,
+          "rates": {
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "guest_wc",
+          "name": "Guest WC",
+          "floor_area": 1.77,
+          "wall_area": 14.26,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "dressing",
+          "name": "Dressing",
+          "floor_area": 3.403,
+          "wall_area": 19.66,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "master_wc",
+          "name": "Master WC",
+          "floor_area": 3.44,
+          "wall_area": 20.93,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "bedroom_01",
+          "name": "Bedroom 01",
+          "floor_area": 15.11,
+          "wall_area": 41.45,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "bedroom_02",
+          "name": "Bedroom 02",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {
+            "hdf_flooring": 650,
+            "painting_walls": 140,
+            "painting_ceiling": 140,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "terrace_2",
+          "name": "Terrace 2",
+          "floor_area": 5.37,
+          "wall_area": 13.24,
+          "rates": {
+            "ceramic_flooring": 350
+          }
+        },
+        {
+          "id": "shared_wc",
+          "name": "Shared WC",
+          "floor_area": 3.53,
+          "wall_area": 21.47,
+          "rates": {
+            "ceramic_flooring": 350,
+            "ceramic_walls": 350,
+            "gypsum_board": 400
+          }
+        },
+        {
+          "id": "public_corridor",
+          "name": "Public Corridor",
+          "floor_area": null,
+          "wall_area": null,
+          "rates": {}
+        }
+      ],
+      "unit_rates": {
+        "doors": 60000,
+        "windows": 82881
+      }
+    }
+  ],
+  "buildings": [
+    {
+      "id": "b10",
+      "code": "10",
+      "name": "Building 10",
+      "building_type": "Type A",
+      "cluster_id": "cluster_1",
+      "units": [
+        {
+          "layout_id": "edge",
+          "count": 14
+        },
+        {
+          "layout_id": "middle",
+          "count": 14
+        }
+      ],
+      "lump_sums": [
+        {
+          "scope": "b10",
+          "discipline": "architecture",
+          "item": "Elevation paint",
+          "amount": 925650,
+          "substantiated": false
+        },
+        {
+          "scope": "b10",
+          "discipline": "architecture",
+          "item": "Public area",
+          "amount": 5933635,
+          "substantiated": false
+        },
+        {
+          "scope": "b10",
+          "discipline": "mep",
+          "item": "Apartments — electrical",
+          "amount": 3700000,
+          "substantiated": false
+        },
+        {
+          "scope": "b10",
+          "discipline": "mep",
+          "item": "Apartments — mechanical",
+          "amount": 4700000,
+          "substantiated": false
+        }
+      ]
+    },
+    {
+      "id": "b11",
+      "code": "11",
+      "name": "Building 11",
+      "building_type": "Type A",
+      "cluster_id": "cluster_1",
+      "units": [
+        {
+          "layout_id": "edge",
+          "count": 14
+        },
+        {
+          "layout_id": "middle",
+          "count": 14
+        }
+      ],
+      "lump_sums": [
+        {
+          "scope": "b11",
+          "discipline": "architecture",
+          "item": "Elevation paint",
+          "amount": 925650,
+          "substantiated": false
+        },
+        {
+          "scope": "b11",
+          "discipline": "architecture",
+          "item": "Public area",
+          "amount": 5933635,
+          "substantiated": false
+        },
+        {
+          "scope": "b11",
+          "discipline": "mep",
+          "item": "Apartments — electrical",
+          "amount": 3700000,
+          "substantiated": false
+        },
+        {
+          "scope": "b11",
+          "discipline": "mep",
+          "item": "Apartments — mechanical",
+          "amount": 4700000,
+          "substantiated": false
+        }
+      ]
+    },
+    {
+      "id": "b12",
+      "code": "12",
+      "name": "Building 12",
+      "building_type": "Type B",
+      "cluster_id": "cluster_1",
+      "units": [
+        {
+          "layout_id": "apt_1",
+          "count": 14
+        },
+        {
+          "layout_id": "apt_2",
+          "count": 14
+        },
+        {
+          "layout_id": "apt_3",
+          "count": 14
+        }
+      ],
+      "lump_sums": [
+        {
+          "scope": "b12",
+          "discipline": "architecture",
+          "item": "Elevation paint",
+          "amount": 1208250,
+          "substantiated": false
+        },
+        {
+          "scope": "b12",
+          "discipline": "architecture",
+          "item": "Public area",
+          "amount": 6960360,
+          "substantiated": false
+        },
+        {
+          "scope": "b12",
+          "discipline": "mep",
+          "item": "Apartments — electrical",
+          "amount": 5000000,
+          "substantiated": false
+        },
+        {
+          "scope": "b12",
+          "discipline": "mep",
+          "item": "Apartments — mechanical",
+          "amount": 5100000,
+          "substantiated": false
+        }
+      ]
+    },
+    {
+      "id": "basement",
+      "code": "BSMT",
+      "name": "Basement",
+      "building_type": "Basement",
+      "cluster_id": "cluster_1",
+      "units": [],
+      "lump_sums": [
+        {
+          "scope": "basement",
+          "discipline": "architecture",
+          "item": "Architecture & structure",
+          "amount": 10644102,
+          "substantiated": false,
+          "note": "Alt in sheet: 15,205,860"
+        },
+        {
+          "scope": "basement",
+          "discipline": "mep",
+          "item": "Electrical",
+          "amount": 35000000,
+          "substantiated": false,
+          "note": "Alt in sheet: 39,544,131"
+        },
+        {
+          "scope": "basement",
+          "discipline": "mep",
+          "item": "Mechanical",
+          "amount": 19000000,
+          "substantiated": false,
+          "note": "Alt in sheet: 22,146,906"
+        }
+      ]
+    }
+  ]
+}
