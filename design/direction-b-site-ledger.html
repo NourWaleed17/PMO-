@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Direction B — Site ledger</title>
+<style>
+  :root{
+    --paper:#fbfbfa;
+    --ink:#101214;
+    --ink-soft:#5b6066;
+    --rule:#d7d9db;
+    --rule-strong:#9ea3a8;
+    --navy:#22345c;
+    --navy-soft:#dde2ec;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:ui-monospace,"IBM Plex Mono","SFMono-Regular",Menlo,Consolas,monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:14px;
+    line-height:1.5;
+  }
+  .prose{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;}
+  a{color:var(--navy);}
+  a:focus-visible, [tabindex]:focus-visible{outline:3px solid var(--navy);outline-offset:2px;}
+  @media (prefers-reduced-motion: no-preference){ .fill{transition:width .4s ease;} }
+
+  .wrap{max-width:1000px;margin:0 auto;padding:18px 16px 60px;}
+
+  .ledger-head{
+    display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;
+    border-bottom:3px double var(--ink);
+    padding-bottom:10px;margin-bottom:4px;
+  }
+  .ledger-head h1{
+    margin:0;font-size:18px;letter-spacing:.04em;text-transform:uppercase;font-weight:700;
+  }
+  .ledger-head .meta{color:var(--ink-soft);font-size:12px;}
+
+  /* tab strip = "route" nav styled as ledger dividers */
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--rule-strong);margin-bottom:18px;flex-wrap:wrap;}
+  .tabs a{
+    padding:8px 14px;font-size:12px;text-decoration:none;color:var(--ink-soft);
+    border:1px solid var(--rule-strong);border-bottom:none;
+    background:#fff;margin-right:-1px;
+  }
+  .tabs a.current{color:var(--ink);font-weight:700;background:var(--paper);border-top:2px solid var(--navy);}
+
+  /* total row */
+  .total-row{
+    display:grid;grid-template-columns:1fr auto;align-items:end;
+    padding:16px 0;border-bottom:1px solid var(--rule);
+    gap:10px;
+  }
+  .total-row .prose{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);}
+  .total-row .value{font-size:clamp(30px,7vw,44px);font-weight:700;}
+  .total-row .value sup{font-size:.4em;font-weight:400;color:var(--ink-soft);margin-left:6px;}
+
+  .split-meter{height:20px;display:flex;border:1px solid var(--ink);margin:14px 0 8px;}
+  .split-meter .m{background:var(--navy);}
+  .split-meter .l{background:repeating-linear-gradient(135deg,#fff,#fff 5px,var(--rule-strong) 5px,var(--rule-strong) 6px);border-left:1px solid var(--ink);}
+  .split-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin-bottom:20px;}
+  .split-labels .prose{}
+  .split-labels b{color:var(--ink);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px;}
+  caption{
+    text-align:left;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);
+    padding:0 0 8px;
+  }
+  th,td{padding:7px 8px;border-bottom:1px solid var(--rule);text-align:right;}
+  th:first-child,td:first-child{text-align:left;}
+  thead th{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+    font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;
+    border-bottom:1.5px solid var(--ink);
+  }
+  tbody tr:last-child td{border-bottom:1px solid var(--rule-strong);}
+  tfoot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:none;padding-top:9px;}
+
+  .hatch-cell{position:relative;}
+  .hatch-cell.lump::before{
+    content:"";position:absolute;inset:2px 4px;
+    background:repeating-linear-gradient(135deg,transparent,transparent 4px,var(--rule-strong) 4px,var(--rule-strong) 5px);
+    opacity:.6;z-index:0;
+  }
+  .hatch-cell.lump span{position:relative;z-index:1;background:var(--paper);padding:0 2px;}
+  .check{color:var(--navy);margin-right:4px;}
+
+  section{margin:26px 0;}
+  .section-title{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 10px;
+  }
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  @media (max-width:680px){ .two-col{grid-template-columns:1fr;} }
+
+  .leader-row{display:flex;align-items:baseline;gap:6px;padding:5px 0;border-bottom:1px dotted var(--rule-strong);}
+  .leader-row .lbl{white-space:nowrap;font-size:13px;}
+  .leader-row .dots{flex:1;border-bottom:1px dotted var(--rule-strong);margin-bottom:4px;}
+  .leader-row .val{white-space:nowrap;font-weight:600;}
+  .leader-row.lump{background:repeating-linear-gradient(135deg,transparent,transparent 6px,rgba(0,0,0,.04) 6px,rgba(0,0,0,.04) 7px);}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule-strong);border:1px solid var(--rule-strong);margin-bottom:26px;}
+  .kpi{background:#fff;padding:12px 14px;}
+  .kpi .v{font-size:19px;font-weight:700;}
+  .kpi .l{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  @media (max-width:640px){ .kpis{grid-template-columns:1fr 1fr;} }
+
+  .stamp{
+    display:inline-block;border:2px solid var(--navy);color:var(--navy);
+    padding:10px 16px;transform:rotate(-2deg);font-weight:700;font-size:12px;
+    letter-spacing:.06em;text-transform:uppercase;margin-top:10px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+  }
+  .stamp .prose-line{display:block;font-weight:400;text-transform:none;letter-spacing:0;margin-top:4px;font-size:11px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger-head">
+    <h1>Cost ledger — Cluster 1</h1>
+    <div class="meta prose">3 buildings + basement · 98 apartments · Rev01 · EGP</div>
+  </div>
+
+  <nav class="tabs" aria-label="Sheets">
+    <a href="#" class="current">Overview</a>
+    <a href="#">Buildings</a>
+    <a href="#">Layouts</a>
+    <a href="#">Activities</a>
+    <a href="#">Rates</a>
+  </nav>
+
+  <div class="total-row">
+    <div class="prose">Cluster total, exact</div>
+    <div class="value">147,629,110.42<sup>EGP</sup></div>
+  </div>
+
+  <div class="split-meter" role="img" aria-label="23.2 percent measured, 76.8 percent lump sum">
+    <div class="m" style="width:23.2%"></div>
+    <div class="l" style="width:76.8%"></div>
+  </div>
+  <div class="split-labels">
+    <span class="prose"><span class="check">✓</span> <b>34,197,828.42</b> measured — built up from areas and rates (23.2%)</span>
+    <span class="prose">▤ <b>113,431,282.00</b> lump sum — no build-up behind the figure (76.8%)</span>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v">98</div><div class="l">Apartments</div></div>
+    <div class="kpi"><div class="v">1,506,419.49</div><div class="l">Average cost / apartment</div></div>
+    <div class="kpi"><div class="v">12,938.18</div><div class="l">EGP per m² of apartment floor area</div></div>
+    <div class="kpi"><div class="v">76.8%</div><div class="l">Of total is lump sum</div></div>
+  </div>
+
+  <section>
+    <table>
+      <caption>Cost by building</caption>
+      <thead>
+        <tr><th>Building</th><th>Type</th><th>Units</th><th>Measured</th><th>Lump sum</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Building 10</td><td>A</td><td>28</td>
+          <td>10,860,765.02</td>
+          <td class="hatch-cell lump"><span>15,259,285.00</span></td>
+          <td>26,120,050.02</td>
+        </tr>
+        <tr>
+          <td>Building 11</td><td>A</td><td>28</td>
+          <td>10,860,765.02</td>
+          <td class="hatch-cell lump"><span>15,259,285.00</span></td>
+          <td>26,120,050.02</td>
+        </tr>
+        <tr>
+          <td>Building 12</td><td>B</td><td>42</td>
+          <td>12,476,298.38</td>
+          <td class="hatch-cell lump"><span>18,268,610.00</span></td>
+          <td>30,744,908.38</td>
+        </tr>
+        <tr>
+          <td>Basement</td><td>—</td><td>0<span class="prose" style="color:var(--ink-soft)"> (no units)</span></td>
+          <td>0.00</td>
+          <td class="hatch-cell lump"><span>64,644,102.00</span></td>
+          <td>64,644,102.00</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr><td>Cluster 1</td><td></td><td>98</td><td>34,197,828.42</td><td>113,431,282.00</td><td>147,629,110.42</td></tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <section class="two-col">
+    <div>
+      <p class="section-title"><span class="check">✓</span> Measured — apartment finishes</p>
+      <div class="leader-row"><span class="lbl">Windows</span><span class="dots"></span><span class="val">10,201,002.00</span></div>
+      <div class="leader-row"><span class="lbl">Doors</span><span class="dots"></span><span class="val">6,720,000.00</span></div>
+      <div class="leader-row"><span class="lbl">Gypsum board</span><span class="dots"></span><span class="val">4,143,949.60</span></div>
+      <div class="leader-row"><span class="lbl">Painting — walls</span><span class="dots"></span><span class="val">3,828,262.20</span></div>
+      <div class="leader-row"><span class="lbl">Ceramic &amp; porcelain flooring</span><span class="dots"></span><span class="val">3,631,899.60</span></div>
+      <div class="leader-row"><span class="lbl">HDF flooring</span><span class="dots"></span><span class="val">2,547,099.10</span></div>
+      <div class="leader-row"><span class="lbl">Ceramic &amp; porcelain walls</span><span class="dots"></span><span class="val">2,011,695.00</span></div>
+      <div class="leader-row"><span class="lbl">Painting — ceiling</span><span class="dots"></span><span class="val">1,113,920.92</span></div>
+    </div>
+    <div>
+      <p class="section-title">▤ Lump sum — by discipline</p>
+      <div class="leader-row lump"><span class="lbl">MEP — all buildings</span><span class="dots"></span><span class="val">80,900,000.00</span></div>
+      <div class="leader-row lump"><span class="lbl">Architecture — basement</span><span class="dots"></span><span class="val">10,644,102.00</span></div>
+      <div class="leader-row lump"><span class="lbl">Architecture — public areas (×3)</span><span class="dots"></span><span class="val">18,827,630.00</span></div>
+      <div class="leader-row lump"><span class="lbl">Architecture — elevation paint (×3)</span><span class="dots"></span><span class="val">3,059,550.00</span></div>
+      <p class="section-title" style="margin-top:18px;">Cost by discipline</p>
+      <div class="leader-row"><span class="lbl">Architecture</span><span class="dots"></span><span class="val">66,729,110.42 · 45.2%</span></div>
+      <div class="leader-row lump"><span class="lbl">MEP</span><span class="dots"></span><span class="val">80,900,000.00 · 54.8%</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stamp">
+      Correction applied
+      <span class="prose-line">Middle-apartment ceramic flooring, −37,567.60 vs. the original sheet — see Layouts</span>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

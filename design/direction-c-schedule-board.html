@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Direction C — Schedule board</title>
+<style>
+  :root{
+    --bg:#eceeef;
+    --card:#ffffff;
+    --ink:#16181a;
+    --ink-soft:#5c6268;
+    --rule:#d3d6d8;
+    --flag:#b8860b;
+    --flag-soft:#f1e2b8;
+    --measured:#3a4650;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+    line-height:1.4;
+  }
+  .num{font-variant-numeric:tabular-nums;font-family:ui-monospace,"IBM Plex Mono",Menlo,Consolas,monospace;}
+  a{color:var(--measured);}
+  a:focus-visible,[tabindex]:focus-visible,button:focus-visible{outline:3px solid var(--flag);outline-offset:2px;}
+  @media (prefers-reduced-motion: no-preference){ .bar span{transition:width .4s ease;} }
+
+  .wrap{max-width:1080px;margin:0 auto;padding:22px 18px 64px;}
+
+  header.top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:22px;}
+  header.top h1{
+    margin:0;font-weight:800;font-size:clamp(22px,4vw,30px);letter-spacing:-.01em;
+  }
+  header.top .meta{font-size:13px;color:var(--ink-soft);}
+
+  .legend-strip{
+    display:flex;gap:18px;flex-wrap:wrap;align-items:center;
+    background:var(--card);border:1px solid var(--rule);border-radius:8px;
+    padding:10px 14px;margin-bottom:22px;font-size:12px;color:var(--ink-soft);
+  }
+  .legend-strip .item{display:flex;align-items:center;gap:6px;}
+  .legend-strip .box{width:14px;height:14px;border-radius:2px;flex:none;}
+  .legend-strip .box.measured{background:var(--measured);border:2px solid var(--measured);}
+  .legend-strip .box.lump{background:#fff;border:4px solid var(--flag);}
+
+  /* KPI tile grid, border-weight system */
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+  @media (max-width:760px){ .tiles{grid-template-columns:1fr 1fr;} }
+  .tile{
+    background:var(--card);border-radius:10px;padding:16px;
+    border:2px solid var(--rule);
+  }
+  .tile .v{font-size:22px;font-weight:800;}
+  .tile .l{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+  .tile .flag-note{font-size:11px;color:var(--flag);margin-top:6px;font-weight:700;}
+
+  /* Hero card */
+  .hero{
+    background:var(--card);border-radius:12px;border:1px solid var(--rule);
+    padding:22px 20px;margin-bottom:24px;
+  }
+  .hero .l{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
+  .hero .v{font-size:clamp(36px,8vw,56px);font-weight:800;line-height:1;}
+  .hero .v .u{font-size:.4em;color:var(--ink-soft);font-weight:600;margin-left:8px;}
+  .hero .exact{font-size:13px;color:var(--ink-soft);margin:4px 0 18px;}
+  .meter{height:26px;border-radius:6px;overflow:hidden;display:flex;background:#fff;border:1px solid var(--rule);}
+  .meter .measured{background:var(--measured);}
+  .meter .lump{background:repeating-linear-gradient(45deg,#fff,#fff 6px,var(--flag-soft) 6px,var(--flag-soft) 12px);border-left:3px solid var(--flag);}
+  .meter-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .meter-labels b{color:var(--ink);}
+
+  section{margin-bottom:26px;}
+  .section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+  .section-head h2{font-size:15px;font-weight:800;margin:0;}
+  .section-head .sub{font-size:12px;color:var(--ink-soft);}
+
+  /* horizontal bars, border-weight = lump share */
+  .bar-list{display:grid;gap:10px;}
+  .bar-item{background:var(--card);border-radius:8px;padding:12px 14px;}
+  .bar-item .row1{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;}
+  .bar-item .row1 .name{font-weight:700;}
+  .bar-item .row1 .name .sub{font-weight:400;color:var(--ink-soft);margin-left:6px;font-size:12px;}
+  .bar-item .row1 .fig{font-weight:700;}
+  .bar{height:14px;border-radius:4px;background:#eef0f1;display:flex;overflow:hidden;}
+  .bar span{display:block;height:100%;}
+  .bar .measured{background:var(--measured);}
+  .bar .lump{background:repeating-linear-gradient(45deg,#eef0f1,#eef0f1 5px,var(--flag) 5px,var(--flag) 6px);opacity:.55;}
+  .bar-item.all-lump{border:3px solid var(--flag);}
+  .bar-item.mostly-measured{border:1px solid var(--rule);}
+  .bar-item.mixed{border:2px solid var(--flag);}
+  .bar-note{font-size:11px;color:var(--ink-soft);margin-top:6px;}
+
+  /* material swatch grid for activities */
+  .swatch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+  .swatch{
+    background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:14px;
+    border-left:6px solid var(--measured);
+  }
+  .swatch .name{font-weight:700;font-size:13px;margin-bottom:2px;}
+  .swatch .basis{font-size:11px;color:var(--ink-soft);margin-bottom:10px;}
+  .swatch .fig{font-size:17px;font-weight:800;}
+  .swatch .pct{font-size:11px;color:var(--ink-soft);}
+
+  .discipline-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:600px){ .discipline-grid{grid-template-columns:1fr;} }
+
+  nav.routes{display:flex;flex-wrap:wrap;gap:10px;}
+  nav.routes a{
+    background:var(--card);border:1px solid var(--rule);border-radius:999px;
+    padding:8px 16px;font-size:13px;text-decoration:none;color:var(--ink);font-weight:600;
+  }
+  nav.routes a:hover{border-color:var(--measured);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Cluster 1 — cost overview</h1>
+      <div class="meta">3 buildings + basement · 98 apartments · Rev01</div>
+    </div>
+  </header>
+
+  <div class="legend-strip">
+    <span class="item"><span class="box measured"></span> Measured — built up from areas and rates</span>
+    <span class="item"><span class="box lump"></span> Lump sum — flagged, no build-up. Border weight scales with lump-sum share.</span>
+  </div>
+
+  <div class="hero">
+    <div class="l">Cluster total</div>
+    <div class="v num">147.6<span class="u">M EGP</span></div>
+    <div class="exact num">147,629,110.42 exact</div>
+    <div class="meter" role="img" aria-label="23.2 percent measured, 76.8 percent lump sum">
+      <div class="measured" style="width:23.2%"></div>
+      <div class="lump" style="width:76.8%"></div>
+    </div>
+    <div class="meter-labels">
+      <span><b class="num">34,197,828.42</b> measured (23.2%)</span>
+      <span><b class="num">113,431,282.00</b> lump sum (76.8%)</span>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="v num">98</div><div class="l">Apartments</div></div>
+    <div class="tile"><div class="v num">1,506,419.49</div><div class="l">Average cost / apartment, EGP</div></div>
+    <div class="tile"><div class="v num">12,938.18</div><div class="l">EGP per m² apartment floor area</div></div>
+    <div class="tile" style="border-color:var(--flag);"><div class="v num">76.8%</div><div class="l">Of total is lump sum</div><div class="flag-note">no build-up behind it</div></div>
+  </div>
+
+  <section>
+    <div class="section-head"><h2>Cost by building</h2><span class="sub">Border weight = share that is lump sum</span></div>
+    <div class="bar-list">
+      <div class="bar-item mostly-measured">
+        <div class="row1"><span class="name">Building 10 <span class="sub">Type A · 28 apartments</span></span><span class="fig num">26,120,050.02</span></div>
+        <div class="bar"><span class="measured" style="width:41.6%"></span><span class="lump" style="width:58.4%"></span></div>
+        <div class="bar-note">58.4% lump sum</div>
+      </div>
+      <div class="bar-item mostly-measured">
+        <div class="row1"><span class="name">Building 11 <span class="sub">Type A · 28 apartments</span></span><span class="fig num">26,120,050.02</span></div>
+        <div class="bar"><span class="measured" style="width:41.6%"></span><span class="lump" style="width:58.4%"></span></div>
+        <div class="bar-note">58.4% lump sum</div>
+      </div>
+      <div class="bar-item mixed">
+        <div class="row1"><span class="name">Building 12 <span class="sub">Type B · 42 apartments</span></span><span class="fig num">30,744,908.38</span></div>
+        <div class="bar"><span class="measured" style="width:40.6%"></span><span class="lump" style="width:59.4%"></span></div>
+        <div class="bar-note">59.4% lump sum</div>
+      </div>
+      <div class="bar-item all-lump">
+        <div class="row1"><span class="name">Basement <span class="sub">0 units · 3 lump sums</span></span><span class="fig num">64,644,102.00</span></div>
+        <div class="bar"><span class="lump" style="width:100%"></span></div>
+        <div class="bar-note">100% lump sum — no units to measure against</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Cost by discipline</h2></div>
+    <div class="discipline-grid">
+      <div class="bar-item mixed">
+        <div class="row1"><span class="name">Architecture</span><span class="fig num">66,729,110.42</span></div>
+        <div class="bar"><span class="measured" style="width:51.3%"></span><span class="lump" style="width:48.7%"></span></div>
+        <div class="bar-note">45.2% of cluster total · 48.7% lump sum</div>
+      </div>
+      <div class="bar-item all-lump">
+        <div class="row1"><span class="name">MEP</span><span class="fig num">80,900,000.00</span></div>
+        <div class="bar"><span class="lump" style="width:100%"></span></div>
+        <div class="bar-note">54.8% of cluster total · 100% lump sum</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Cost by activity — apartment finishes</h2><span class="sub">All measured</span></div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="name">Windows</div><div class="basis">Per unit</div><div class="fig num">10,201,002.00</div><div class="pct num">29.8% of finishes</div></div>
+      <div class="swatch"><div class="name">Doors</div><div class="basis">Per unit</div><div class="fig num">6,720,000.00</div><div class="pct num">19.7% of finishes</div></div>
+      <div class="swatch"><div class="name">Gypsum board</div><div class="basis">Rate × floor area</div><div class="fig num">4,143,949.60</div><div class="pct num">12.1% of finishes</div></div>
+      <div class="swatch"><div class="name">Painting — walls</div><div class="basis">Rate × wall area</div><div class="fig num">3,828,262.20</div><div class="pct num">11.2% of finishes</div></div>
+      <div class="swatch"><div class="name">Ceramic &amp; porcelain flooring</div><div class="basis">Rate × floor area</div><div class="fig num">3,631,899.60</div><div class="pct num">10.6% of finishes</div></div>
+      <div class="swatch"><div class="name">HDF flooring</div><div class="basis">Rate × floor area</div><div class="fig num">2,547,099.10</div><div class="pct num">7.4% of finishes</div></div>
+      <div class="swatch"><div class="name">Ceramic &amp; porcelain walls</div><div class="basis">Rate × wall area</div><div class="fig num">2,011,695.00</div><div class="pct num">5.9% of finishes</div></div>
+      <div class="swatch"><div class="name">Painting — ceiling</div><div class="basis">Rate × floor area</div><div class="fig num">1,113,920.92</div><div class="pct num">3.3% of finishes</div></div>
+    </div>
+    <p style="font-size:12px;color:var(--ink-soft);margin-top:12px;max-width:60ch;">
+      Correction applied: Apartment Middle ceramic flooring was priced against the wrong areas in the
+      original spreadsheet. This total carries the fix — 37,567.60 lower across 28 apartments. See Layouts.
+    </p>
+  </section>
+
+  <nav class="routes" aria-label="Other screens">
+    <a href="#">Buildings →</a>
+    <a href="#">Layouts →</a>
+    <a href="#">Activities →</a>
+    <a href="#">Rates →</a>
+  </nav>
+
+</div>
+</body>
+</html>

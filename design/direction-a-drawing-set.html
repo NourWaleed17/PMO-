@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Direction A — Drawing set</title>
+<style>
+  :root{
+    --paper:#f2f3f1;
+    --ink:#1b1e21;
+    --ink-soft:#565d63;
+    --rule:#c6cbd0;
+    --rule-strong:#9aa1a8;
+    --blue:#35506b;
+    --blue-soft:#c4d0da;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+    line-height:1.4;
+  }
+  .num{
+    font-family:ui-monospace,"IBM Plex Mono","SFMono-Regular",Menlo,Consolas,monospace;
+    font-variant-numeric:tabular-nums;
+  }
+  a{color:var(--blue);}
+  a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
+    outline:3px solid var(--blue);
+    outline-offset:2px;
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .bar-fill{transition:width .5s ease;}
+  }
+
+  .sheet{max-width:1040px;margin:0 auto;padding:20px 20px 64px;}
+
+  /* Title block */
+  .titleblock{
+    border:1.5px solid var(--ink);
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:0;
+    margin-bottom:28px;
+  }
+  .titleblock .main{padding:18px 20px;border-right:1.5px solid var(--ink);}
+  .titleblock .meta{padding:18px 20px;display:grid;gap:6px;align-content:center;min-width:200px;}
+  .titleblock .kicker{
+    font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 6px;
+  }
+  .titleblock h1{margin:0;font-size:22px;font-weight:700;letter-spacing:.01em;}
+  .titleblock .sub{margin:4px 0 0;color:var(--ink-soft);font-size:14px;}
+  .meta-row{display:flex;justify-content:space-between;font-size:12px;gap:12px;}
+  .meta-row dt{color:var(--ink-soft);}
+  .meta-row dd{margin:0;font-weight:600;}
+  @media (max-width:600px){
+    .titleblock{grid-template-columns:1fr;}
+    .titleblock .main{border-right:none;border-bottom:1.5px solid var(--ink);}
+  }
+
+  /* Hero */
+  .hero{
+    border:1px solid var(--rule);
+    background:#fff;
+    padding:28px 24px;
+    margin-bottom:24px;
+  }
+  .hero .label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);}
+  .hero .figure{
+    font-size:clamp(40px,9vw,64px);
+    font-weight:700;
+    margin:6px 0 4px;
+    line-height:1;
+  }
+  .hero .figure .unit{font-size:.42em;font-weight:600;color:var(--ink-soft);margin-left:8px;}
+  .hero .exact{color:var(--ink-soft);font-size:14px;margin:0 0 20px;}
+
+  .split{display:flex;height:34px;border:1px solid var(--ink);overflow:hidden;margin-bottom:10px;}
+  .split .measured{background:var(--blue);}
+  .split .lump{
+    background:repeating-linear-gradient(45deg, var(--paper), var(--paper) 5px, var(--rule-strong) 5px, var(--rule-strong) 6px);
+    border-left:1px solid var(--ink);
+  }
+  .split-legend{display:flex;flex-wrap:wrap;gap:20px;font-size:13px;}
+  .split-legend .item{display:flex;align-items:center;gap:8px;}
+  .swatch{width:16px;height:16px;flex:none;border:1px solid var(--ink);}
+  .swatch.measured{background:var(--blue);}
+  .swatch.lump{background:repeating-linear-gradient(45deg, var(--paper), var(--paper) 3px, var(--rule-strong) 3px, var(--rule-strong) 4px);}
+  .split-legend .fig{margin-left:auto;}
+  .split-legend .pct{font-weight:700;}
+
+  /* Dimension-line KPI row */
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:0;
+    border:1px solid var(--rule);
+    background:#fff;
+    margin-bottom:24px;
+  }
+  .kpi{padding:16px 18px;border-right:1px solid var(--rule);position:relative;}
+  .kpi:last-child{border-right:none;}
+  .kpi .tick{
+    height:8px;border-bottom:1px solid var(--rule-strong);
+    position:relative;margin-bottom:10px;
+  }
+  .kpi .tick::before,.kpi .tick::after{
+    content:"";position:absolute;bottom:0;width:1px;height:6px;background:var(--rule-strong);
+  }
+  .kpi .tick::before{left:0;}
+  .kpi .tick::after{right:0;}
+  .kpi .value{font-size:22px;font-weight:700;}
+  .kpi .caption{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+  @media (max-width:700px){
+    .kpis{grid-template-columns:1fr 1fr;}
+    .kpi:nth-child(2){border-right:none;}
+  }
+
+  section.block{margin-bottom:28px;}
+  section.block h2{
+    font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--rule-strong);
+  }
+
+  /* Buildings — plan-view stacked bars */
+  .b-row{display:grid;grid-template-columns:130px 1fr 150px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule);}
+  .b-row:last-child{border-bottom:none;}
+  .b-name{font-size:14px;font-weight:600;}
+  .b-name .code{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
+  .bar-track{height:22px;border:1px solid var(--ink);display:flex;overflow:hidden;background:#fff;}
+  .bar-fill.measured{background:var(--blue);}
+  .bar-fill.lump{background:repeating-linear-gradient(45deg, var(--paper), var(--paper) 5px, var(--rule-strong) 5px, var(--rule-strong) 6px);}
+  .b-total{text-align:right;font-size:14px;font-weight:700;}
+  .b-note{font-size:11px;color:var(--ink-soft);text-align:right;}
+  @media (max-width:600px){
+    .b-row{grid-template-columns:1fr;gap:6px;}
+    .b-total{text-align:left;}
+  }
+
+  /* Discipline */
+  .d-row{margin-bottom:14px;}
+  .d-head{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;}
+  .d-head .name{font-weight:600;}
+  .d-head .fig{font-weight:700;}
+
+  /* Activity list */
+  .act-list{display:grid;gap:8px;}
+  .act-row{display:grid;grid-template-columns:170px 1fr 130px 50px;gap:12px;align-items:center;}
+  .act-name{font-size:13px;}
+  .act-track{height:14px;background:#fff;border:1px solid var(--rule-strong);}
+  .act-fill{height:100%;background:var(--blue);}
+  .act-fig{text-align:right;font-size:13px;font-weight:600;}
+  .act-pct{text-align:right;font-size:12px;color:var(--ink-soft);}
+  @media (max-width:640px){
+    .act-row{grid-template-columns:1fr;gap:4px;}
+    .act-fig,.act-pct{text-align:left;}
+  }
+
+  /* Annotation / leader note */
+  .note{
+    border-left:3px solid var(--blue);
+    background:#fff;padding:12px 16px;font-size:13px;color:var(--ink-soft);margin-top:6px;
+  }
+  .note b{color:var(--ink);}
+
+  /* Sheet index / routes */
+  .index{display:flex;flex-wrap:wrap;gap:10px;border-top:1.5px solid var(--ink);padding-top:16px;}
+  .index a{
+    display:flex;align-items:center;gap:8px;
+    border:1px solid var(--ink);padding:8px 14px;font-size:13px;text-decoration:none;color:var(--ink);
+    background:#fff;
+  }
+  .index a .sheet-no{font-weight:700;color:var(--blue);}
+  .index a:hover{background:var(--blue-soft);}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="titleblock">
+    <div class="main">
+      <p class="kicker">Board dashboard — direction A</p>
+      <h1>Overview — Cluster 1</h1>
+      <p class="sub">3 buildings + basement · 98 apartments · Rev01</p>
+    </div>
+    <div class="meta">
+      <div class="meta-row"><dt>Sheet</dt><dd>01 — Overview</dd></div>
+      <div class="meta-row"><dt>Currency</dt><dd>EGP</dd></div>
+      <div class="meta-row"><dt>Source</dt><dd>Resedential_Rev01.xlsx</dd></div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <p class="label">Cluster total</p>
+    <p class="figure num">147.6<span class="unit">M EGP</span></p>
+    <p class="exact num">147,629,110.42 exact</p>
+
+    <div class="split" role="img" aria-label="23.2 percent measured, 76.8 percent lump sum">
+      <div class="measured" style="width:23.2%"></div>
+      <div class="lump" style="width:76.8%"></div>
+    </div>
+    <div class="split-legend">
+      <span class="item"><span class="swatch measured"></span> Measured — built up from areas and rates <span class="fig num pct">23.2%</span></span>
+      <span class="item"><span class="swatch lump"></span> Lump sum — no build-up behind the figure <span class="fig num pct">76.8%</span></span>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="tick"></div>
+      <div class="value num">98</div>
+      <div class="caption">Apartments</div>
+    </div>
+    <div class="kpi">
+      <div class="tick"></div>
+      <div class="value num">1,506,419.49</div>
+      <div class="caption">Average cost per apartment, EGP</div>
+    </div>
+    <div class="kpi">
+      <div class="tick"></div>
+      <div class="value num">12,938.18</div>
+      <div class="caption">Cost per m² of apartment floor area</div>
+    </div>
+    <div class="kpi">
+      <div class="tick"></div>
+      <div class="value num">76.8%</div>
+      <div class="caption">Of total is lump sum, not measured</div>
+    </div>
+  </div>
+
+  <section class="block">
+    <h2>Cost by building</h2>
+    <div class="b-row">
+      <div class="b-name">Building 10<span class="code">Type A · 28 apartments</span></div>
+      <div class="bar-track" role="img" aria-label="41.6 percent measured, 58.4 percent lump sum">
+        <div class="bar-fill measured" style="width:41.6%"></div>
+        <div class="bar-fill lump" style="width:58.4%"></div>
+      </div>
+      <div><div class="b-total num">26,120,050.02</div><div class="b-note">41.6% measured</div></div>
+    </div>
+    <div class="b-row">
+      <div class="b-name">Building 11<span class="code">Type A · 28 apartments</span></div>
+      <div class="bar-track" role="img" aria-label="41.6 percent measured, 58.4 percent lump sum">
+        <div class="bar-fill measured" style="width:41.6%"></div>
+        <div class="bar-fill lump" style="width:58.4%"></div>
+      </div>
+      <div><div class="b-total num">26,120,050.02</div><div class="b-note">41.6% measured</div></div>
+    </div>
+    <div class="b-row">
+      <div class="b-name">Building 12<span class="code">Type B · 42 apartments</span></div>
+      <div class="bar-track" role="img" aria-label="40.6 percent measured, 59.4 percent lump sum">
+        <div class="bar-fill measured" style="width:40.6%"></div>
+        <div class="bar-fill lump" style="width:59.4%"></div>
+      </div>
+      <div><div class="b-total num">30,744,908.38</div><div class="b-note">40.6% measured</div></div>
+    </div>
+    <div class="b-row">
+      <div class="b-name">Basement<span class="code">0 units · 3 lump sums</span></div>
+      <div class="bar-track" role="img" aria-label="0 percent measured, 100 percent lump sum">
+        <div class="bar-fill lump" style="width:100%"></div>
+      </div>
+      <div><div class="b-total num">64,644,102.00</div><div class="b-note">100% lump sum — no units to measure against</div></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Cost by discipline</h2>
+    <div class="d-row">
+      <div class="d-head"><span class="name">Architecture</span><span class="fig num">66,729,110.42 · 45.2%</span></div>
+      <div class="bar-track" style="height:18px" role="img" aria-label="architecture, mostly measured with some lump sum">
+        <div class="bar-fill measured" style="width:51.3%"></div>
+        <div class="bar-fill lump" style="width:48.7%"></div>
+      </div>
+    </div>
+    <div class="d-row">
+      <div class="d-head"><span class="name">MEP</span><span class="fig num">80,900,000.00 · 54.8%</span></div>
+      <div class="bar-track" style="height:18px" role="img" aria-label="MEP, entirely lump sum">
+        <div class="bar-fill lump" style="width:100%"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Cost by activity — apartment finishes <span style="font-weight:400;text-transform:none;letter-spacing:0;">(all measured)</span></h2>
+    <div class="act-list">
+      <div class="act-row"><div class="act-name">Windows</div><div class="act-track"><div class="act-fill" style="width:100%"></div></div><div class="act-fig num">10,201,002.00</div><div class="act-pct num">29.8%</div></div>
+      <div class="act-row"><div class="act-name">Doors</div><div class="act-track"><div class="act-fill" style="width:65.9%"></div></div><div class="act-fig num">6,720,000.00</div><div class="act-pct num">19.7%</div></div>
+      <div class="act-row"><div class="act-name">Gypsum board</div><div class="act-track"><div class="act-fill" style="width:40.6%"></div></div><div class="act-fig num">4,143,949.60</div><div class="act-pct num">12.1%</div></div>
+      <div class="act-row"><div class="act-name">Painting — walls</div><div class="act-track"><div class="act-fill" style="width:37.5%"></div></div><div class="act-fig num">3,828,262.20</div><div class="act-pct num">11.2%</div></div>
+      <div class="act-row"><div class="act-name">Ceramic &amp; porcelain flooring</div><div class="act-track"><div class="act-fill" style="width:35.6%"></div></div><div class="act-fig num">3,631,899.60</div><div class="act-pct num">10.6%</div></div>
+      <div class="act-row"><div class="act-name">HDF flooring</div><div class="act-track"><div class="act-fill" style="width:25.0%"></div></div><div class="act-fig num">2,547,099.10</div><div class="act-pct num">7.4%</div></div>
+      <div class="act-row"><div class="act-name">Ceramic &amp; porcelain walls</div><div class="act-track"><div class="act-fill" style="width:19.7%"></div></div><div class="act-fig num">2,011,695.00</div><div class="act-pct num">5.9%</div></div>
+      <div class="act-row"><div class="act-name">Painting — ceiling</div><div class="act-track"><div class="act-fill" style="width:10.9%"></div></div><div class="act-fig num">1,113,920.92</div><div class="act-pct num">3.3%</div></div>
+    </div>
+    <div class="note">
+      <b>Correction applied.</b> Apartment Middle ceramic flooring was priced against the wrong areas
+      in the source spreadsheet. This figure carries the fix — 37,567.60 lower across 28 apartments
+      than the original sheet. See Layouts for the space-by-space build-up.
+    </div>
+  </section>
+
+  <nav class="index" aria-label="Other sheets">
+    <a href="#"><span class="sheet-no">02</span> Buildings</a>
+    <a href="#"><span class="sheet-no">03</span> Layouts</a>
+    <a href="#"><span class="sheet-no">04</span> Activities</a>
+    <a href="#"><span class="sheet-no">05</span> Rates</a>
+  </nav>
+
+</div>
+</body>
+</html>

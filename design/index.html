@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Overview — design directions</title>
+<style>
+  :root{ --bg:#f5f5f4; --ink:#1a1a1a; --ink-soft:#666; --rule:#ddd; }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;}
+  .wrap{max-width:860px;margin:0 auto;padding:40px 20px 80px;}
+  h1{font-size:24px;margin:0 0 6px;}
+  p.lead{color:var(--ink-soft);margin:0 0 32px;max-width:64ch;line-height:1.5;}
+  .card{
+    display:block;background:#fff;border:1px solid var(--rule);border-radius:10px;
+    padding:20px 22px;margin-bottom:16px;text-decoration:none;color:var(--ink);
+  }
+  .card:hover{border-color:#999;}
+  .card:focus-visible{outline:3px solid #1a1a1a;outline-offset:2px;}
+  .card .tag{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:6px;}
+  .card h2{margin:0 0 8px;font-size:18px;}
+  .card p{margin:0;color:var(--ink-soft);font-size:14px;line-height:1.5;}
+  footer{margin-top:32px;font-size:13px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Overview screen — three directions</h1>
+  <p class="lead">
+    Same real data from <code>seed.json</code> in every direction: 147,629,110.42 EGP cluster
+    total, 76.8% lump sum. Only the visual treatment differs. Pick one — do not average them.
+  </p>
+
+  <a class="card" href="./direction-a-drawing-set.html">
+    <div class="tag">Direction A</div>
+    <h2>Drawing set</h2>
+    <p>Technical-drawing title block, dimension-line KPIs, hairline rules. Measured vs. lump sum
+      is a solid fill against a diagonal hatch — the section-drawing convention for "no build-up here."</p>
+  </a>
+
+  <a class="card" href="./direction-b-site-ledger.html">
+    <div class="tag">Direction B</div>
+    <h2>Site ledger</h2>
+    <p>Dense, monospace, exact figures everywhere — no headline rounding. Reads like a printed
+      schedule of rates. Lump-sum cells carry a faint hatch; a rubber-stamp box flags the applied
+      correction.</p>
+  </a>
+
+  <a class="card" href="./direction-c-schedule-board.html">
+    <div class="tag">Direction C</div>
+    <h2>Schedule board</h2>
+    <p>Card-based, chart-forward. Border weight scales with a card's lump-sum share — thin border,
+      mostly measured; thick ochre border, all lump sum. Activities shown as a materials-board
+      swatch grid.</p>
+  </a>
+
+  <footer>All three respect: tabular numerals, EGP thousands-separated formatting, no colour-only
+    encoding, responsive to 375px, visible focus states.</footer>
+</div>
+</body>
+</html>
