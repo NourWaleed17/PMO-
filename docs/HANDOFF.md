@@ -23,25 +23,44 @@ handoff is just as clean.
       commit before this handoff — the Vite template's `App.tsx` imported
       assets that had been deleted, and Tailwind was installed but never
       added to `vite.config.ts`. Both are fixed now.)
-- [x] `src/App.tsx` is a **placeholder** — it renders the cluster total
-      straight from `summarise()` to prove the data → engine → component
-      wiring works. It is not a design and should be deleted/replaced, not
-      extended.
+- [x] Design directions chosen — see item 1 below.
+- [x] `src/data/schema.ts` + `src/data/index.ts` — zod schema matching `Model`,
+      validates `seed.json` on load, throws a specific error if the shape
+      drifts. This is now the only place components import model data from.
+- [x] `src/lib/format.ts` — the one formatting utility. `formatHeadline` (the
+      `147.6` register, pair with a literal "M EGP" unit), `formatExact` (the
+      `147,629,110.42` register), `formatPercent`, `formatInt`, `formatLabel`
+      (generic acronym-vs-sentence-case rule, not a hardcoded discipline
+      list), and the shared `numClass` for `tabular-nums`.
+- [x] `src/engine/engine.extension.test.ts` — proves acceptance criteria #2
+      and #3 (9th activity, 4th building) plus a basement-shaped fixture
+      (0 units, lump sums only) against fixture models, independent of
+      `seed.json`. `npm test` passes.
+- [x] `src/selectors/overview.ts` — Overview-only derived shapes
+      (`clusterSplit`, `byBuilding`, `byDiscipline`, `byActivity`,
+      `costPerM2`, `avgCostPerApartment`), built on `summarise()`/`lineItems()`
+      without touching `engine.ts`.
+- [x] `src/screens/Overview.tsx` — the first real screen, built to Direction C
+      (schedule board). Wired into `App.tsx`, replacing the placeholder.
+      Verified in a real browser (Chromium via Playwright) at 1280px and at
+      375px — renders correctly at both, basement's 100%-lump-sum bar and
+      "no units" label render without special-casing.
 
 Confirm all of the above still holds before doing anything else:
 
 ```
 npm install
 npm run verify
+npm test
 npm run build && rm -rf dist
 ```
 
 ## What's not done — in order
 
-The brief (section 10, "Master prompt") is explicit that design comes before
-code. Do not skip ahead to React screens.
+Items 1–4 below are done (kept for context — see "What's done" above and the
+decision note in item 1). Pick up at **item 5, screen 2 (Layouts)**.
 
-### 1. Design directions (blocking — do this first)
+### 1. Design directions — done, decision recorded
 
 Produce **2–3 distinct static HTML directions** for the Overview screen only,
 using real numbers from `seed.json` (not placeholder data). Follow the
@@ -51,63 +70,65 @@ the measured-vs-lump-sum signature treatment, and the "what to avoid" list
 gradient hero cards).
 
 **Show them and wait for a decision before writing any React component.**
-This repo has no decision recorded yet — if you're picking this up cold and
-there's no note from the user about which direction won, ask before building.
 
-### 2. Data-access layer
+**Decision recorded 2026-07-23: Direction C — "Schedule board" — chosen.**
+The three directions live in `design/` (`direction-a-drawing-set.html`,
+`direction-b-site-ledger.html`, `direction-c-schedule-board.html`, `index.html`
+to compare). Direction C is card-based, chart-forward: KPI tiles, a
+border-weight system where border thickness scales with a card's lump-sum
+share (thin = mostly measured, thick ochre = all lump sum), and activities
+shown as a materials-swatch grid. That's the direction to extend for every
+subsequent screen — don't introduce a different visual system for Layouts,
+Activities, Buildings, or Rates.
 
-Create `src/data/index.ts` (or similar) that:
-- imports `seed.json`,
-- validates it with a `zod` schema matching `Model` in `src/engine/engine.ts`,
-  failing loudly with a specific error if the shape is wrong (the brief calls
-  this out explicitly, since the file is hand-edited),
-- is the **only** place components import model data from.
+### 2. Data-access layer — done
 
-This is the module that makes Phase 2 (Supabase) a swap instead of a rewrite
-— keep it clean per `docs/BRIEF.md` section 6.
+`src/data/schema.ts` + `src/data/index.ts`, per the plan above. Nothing else
+imports `seed.json` directly — keep it that way as new screens are built.
 
-Replace the raw `import model from "./data/seed.json"` + `as unknown as
-Model` cast currently in `src/App.tsx` with this validated import once it
-exists.
+### 3. Currency + number formatting utility — done
 
-### 3. Currency + number formatting utility
+`src/lib/format.ts`, per the plan above.
 
-One function, used everywhere a number is displayed. Handles the two
-registers from the brief: `147.6 M` in headlines vs `147,629,110.42` in
-tables — never both in the same view. `font-variant-numeric: tabular-nums`
-belongs here or in a shared class, not repeated per component.
+### 4. Extension tests — done
 
-### 4. Extension tests (required by acceptance criteria #2 and #3)
-
-Write these before or alongside the first screen, not after:
-- Adding a 9th activity to a **test fixture** model makes it appear in
-  relevant selectors/roll-ups with no code change.
-- Adding a 4th building (e.g. reusing existing layouts) makes it appear in
-  every roll-up with no code change.
-
-These are the whole point of the model (`docs/BRIEF.md` section 3). Use
-Vitest, colocate with the engine or a selectors module.
+`src/engine/engine.extension.test.ts` covers the 9th-activity and 4th-building
+cases (acceptance criteria #2, #3) plus a basement-shaped fixture. As each new
+screen's selectors ship, prefer extending these fixture-based tests over
+hand-checking against `seed.json`.
 
 ### 5. Screens, in this order
 
 Build one screen at a time. Run `npm run verify` after each one; stop and
 investigate if totals drift.
 
-1. **Overview** — cluster total with substantiation split, apartment count,
-   cost per apartment, cost per m², cost by building, cost by discipline,
-   cost by activity (apartment finishes), route into each.
-2. **Layouts** — the five apartment types, space by space: floor area, wall
-   area, applicable activities, rate, cost. Deepest level; proves the model.
+1. **Overview — done.** `src/screens/Overview.tsx`. Cluster total with
+   substantiation split, apartment count, cost per apartment, cost per m²,
+   cost by building, cost by discipline, cost by activity (apartment
+   finishes). The route-out nav to the other four screens is present but
+   inert (`aria-disabled`, "Not built yet" tooltip) — there's nothing to
+   route to until they exist. Wire real navigation once at least Layouts
+   exists; don't add a router for a single working link.
+2. **Layouts — next.** The five apartment types, space by space: floor area,
+   wall area, applicable activities, rate, cost. Deepest level; proves the
+   model. Build to Direction C (see item 1) — card-based, same border-weight
+   signature for measured vs. lump sum, same `src/lib/format.ts` and
+   `numClass`. Add a `src/selectors/layouts.ts` alongside it rather than
+   growing `overview.ts` or touching `engine.ts`.
 3. **Activities** — all activities across the cluster, filterable by
    building/layout/discipline, showing the rate × count behind each total.
 4. **Buildings** — drill into one building: layouts, unit counts, measured
    cost, lump sums. The basement (`b.units = []`, 3 lump sums) must render
-   without special-casing — it's the layout-must-not-break-on-this test case.
+   without special-casing — `byBuilding()` in `src/selectors/overview.ts`
+   already handles this shape correctly (see the extension test); reuse the
+   pattern rather than re-deriving it.
 5. **Rates** — the editing surface: change any rate/area/count, persistent
    delta-vs-seed banner, reset, export JSON.
 
 Filters (cluster, building, layout, discipline, activity, substantiated) are
-global and reflected in the URL — wire them once, not per screen.
+global and reflected in the URL — wire them once, not per screen. Worth
+introducing when Layouts or Activities lands (whichever needs filtering
+first), not before.
 
 ### 6. Full acceptance criteria (`docs/BRIEF.md` section 7)
 
@@ -116,15 +137,15 @@ Check every one before calling Phase 1 done:
 | # | Criterion | Status |
 |---|---|---|
 | 1 | `npx tsx verify.ts` reproduces documented numbers | done |
-| 2 | 9th activity flows through every screen, covered by a test | not started |
-| 3 | 4th building flows through every roll-up, covered by a test | not started |
-| 4 | Editing window rate updates total/chart/building/per-apartment together | not started |
-| 5 | Export JSON re-imports and reproduces edited state | not started |
-| 6 | Reset returns exactly to seed | not started |
-| 7 | Basement (0 units, 3 lump sums) renders correctly everywhere | not started |
-| 8 | Filtering to one activity doesn't break chart layout | not started |
-| 9 | Usable at 375px width | not started |
-| 10 | Every figure shows measured vs. lump sum | not started (placeholder doesn't yet) |
+| 2 | 9th activity flows through every screen, covered by a test | test done; "every screen" needs screens 2–5 |
+| 3 | 4th building flows through every roll-up, covered by a test | test done; needs screens 2–5 for full coverage |
+| 4 | Editing window rate updates total/chart/building/per-apartment together | not started — needs Rates screen |
+| 5 | Export JSON re-imports and reproduces edited state | not started — needs Rates screen |
+| 6 | Reset returns exactly to seed | not started — needs Rates screen |
+| 7 | Basement (0 units, 3 lump sums) renders correctly everywhere | done on Overview; needs screens 2–5 |
+| 8 | Filtering to one activity doesn't break chart layout | not started — needs filters |
+| 9 | Usable at 375px width | done on Overview (verified in-browser); needs screens 2–5 |
+| 10 | Every figure shows measured vs. lump sum | done on Overview; needs screens 2–5 |
 
 ## Things to not do
 
