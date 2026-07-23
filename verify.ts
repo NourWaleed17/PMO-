@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
-import { Model, summarise, layoutTotal, layoutCost } from "./src/engine";
+import { Model, summarise, layoutTotal, layoutCost } from "./src/engine/engine";
 
-const model: Model = JSON.parse(readFileSync("seed.json", "utf8"));
+const model: Model = JSON.parse(readFileSync("src/data/seed.json", "utf8"));
 const s = summarise(model);
 const f = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 2 });
 
