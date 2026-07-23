@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FilterBar } from "../components/FilterBar";
 import { ScreenNav } from "../components/ScreenNav";
-import { model } from "../data";
+import { useModel } from "../data/ModelContext";
 import { CARD, INK, INK_SOFT, MEASURED, PageShell, RULE } from "../design/direction-c";
 import { filtersFromSearch, searchFromFilters } from "../filters/filters";
 import { formatExact, formatInt, formatLabel, formatPercent } from "../lib/format";
@@ -15,6 +15,7 @@ import {
 } from "../selectors/activities";
 
 export default function Activities() {
+  const { model } = useModel();
   const { search, setSearch } = useRoute();
   const filters = filtersFromSearch(search);
 

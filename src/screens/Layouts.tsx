@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ScreenNav } from "../components/ScreenNav";
-import { model } from "../data";
+import { useModel } from "../data/ModelContext";
 import { CARD, INK, INK_SOFT, MEASURED, PageShell, RULE } from "../design/direction-c";
 import { formatExact, formatInt, formatPercent } from "../lib/format";
 import { layoutRows, type LayoutRow, type SpaceRow } from "../selectors/layouts";
@@ -75,6 +75,7 @@ function LayoutSummaryCard({ row, selected, onSelect }: { row: LayoutRow; select
 }
 
 export default function Layouts() {
+  const { model } = useModel();
   const rows = layoutRows(model);
   const [selectedId, setSelectedId] = useState(rows[0]?.id);
   const selected = rows.find((r) => r.id === selectedId) ?? rows[0];

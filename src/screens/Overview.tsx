@@ -1,5 +1,5 @@
 import { ScreenNav } from "../components/ScreenNav";
-import { model } from "../data";
+import { useModel } from "../data/ModelContext";
 import { Bar, CARD, FLAG, INK, INK_SOFT, MEASURED, PageShell, RULE, SplitMeter, weightStyle } from "../design/direction-c";
 import { formatExact, formatHeadline, formatInt, formatLabel, formatPercent } from "../lib/format";
 import {
@@ -13,6 +13,7 @@ import {
 } from "../selectors/overview";
 
 export default function Overview() {
+  const { model } = useModel();
   const cluster = clusterSplit(model);
   const apartments = apartmentCount(model);
   const avgCost = avgCostPerApartment(model);

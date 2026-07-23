@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ScreenNav } from "../components/ScreenNav";
-import { model } from "../data";
+import { useModel } from "../data/ModelContext";
 import { Bar, CARD, FLAG, FLAG_SOFT, INK, INK_SOFT, MEASURED, PageShell, RULE, SplitMeter, weightStyle } from "../design/direction-c";
 import { formatExact, formatInt, formatLabel, formatPercent } from "../lib/format";
 import { buildingDetails, type BuildingLumpSum } from "../selectors/buildings";
@@ -25,6 +25,7 @@ function LumpSumCard({ lumpSum }: { lumpSum: BuildingLumpSum }) {
 }
 
 export default function Buildings() {
+  const { model } = useModel();
   const details = buildingDetails(model);
   const [selectedId, setSelectedId] = useState(details[0]?.id);
   const selected = details.find((d) => d.id === selectedId) ?? details[0];

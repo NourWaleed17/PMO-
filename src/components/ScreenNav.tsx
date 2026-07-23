@@ -14,7 +14,7 @@ export const NAV_ITEMS: NavItem[] = [
   { path: "/layouts", label: "Layouts", built: true },
   { path: "/activities", label: "Activities", built: true },
   { path: "/buildings", label: "Buildings", built: true },
-  { path: "/rates", label: "Rates", built: false },
+  { path: "/rates", label: "Rates", built: true },
 ];
 
 export function ScreenNav() {

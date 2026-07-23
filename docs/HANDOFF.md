@@ -121,6 +121,58 @@ handoff is just as clean.
       turned out to be the `motion-safe` width transition still animating at
       screenshot time, not a real defect — confirmed by reading the DOM
       after the transition settled.
+- [x] **Fixed a real navigation bug** while building Rates: `useRoute()` was
+      a plain hook, so `App` and `ScreenNav` each held an independent
+      `useState` copy of the route. `pushState` doesn't fire `popstate`, so
+      clicking a nav link updated `ScreenNav`'s own state and the address
+      bar, but `App` — which decides which screen to render — never found
+      out, and silently kept rendering the previous screen while the URL and
+      the nav pill both said otherwise. Only caught because a Playwright
+      click-through test showed the URL change but the old screen's content.
+      Fixed by converting `src/routing/router.tsx` (renamed from `.ts`) into
+      a `RouteProvider` context, same pattern as `ModelContext` — one shared
+      state instance, every consumer sees the same update. `App.tsx` now
+      wraps the tree in `<RouteProvider>`. Re-verified all cross-screen
+      navigation and the Activities filter afterward; both correct.
+- [x] `src/data/ModelContext.tsx` — the edited-state layer Rates needs.
+      `ModelProvider` holds the live `Model` in `useState`, seeded from a
+      `structuredClone` of the static `model` export in `src/data/index.ts`
+      (which is never itself mutated). `update(mutator)` clones-then-mutates
+      a draft and commits it; `reset()` restores a fresh clone of the seed.
+      Every screen now reads `const { model } = useModel()` instead of
+      importing the static `model` directly — Overview, Layouts, Activities,
+      and Buildings were all switched over, which is what makes an edit on
+      Rates show up on every other screen immediately: they share the same
+      state, not a copy.
+- [x] `src/selectors/rates.ts` + `rates.test.ts` — pure `deltaSummary(seed,
+      current)` for the persistent banner (seed total, current total, delta,
+      delta %, `isDirty`). `isDirty` is a deep compare, not `delta !== 0` — a
+      test covers an edit that changes the model but leaves the total
+      unchanged (swapping two same-rate spaces' areas) and confirms it still
+      reads dirty.
+- [x] `src/screens/Rates.tsx` — fifth and last screen, Direction C. Persistent
+      delta banner (ochre border while dirty), Export JSON (downloads the
+      current model — re-validated with `modelSchema` and re-summarised in a
+      one-off script to confirm it reproduces the edited total exactly),
+      Reset to seed (`window.confirm`, disabled when not dirty), an
+      apartment-count editor per building/layout, and a per-layout editor for
+      every present space's floor/wall area and activity rates plus the two
+      per-unit rates (windows, doors). Editing is via a `NumberField` that
+      tracks local text and commits on blur, so the field doesn't fight you
+      mid-edit.
+
+      **Verified functionally, not just visually**, in a real browser: edited
+      Apartment Edge's window rate (+10,000/apartment × 28 apartments), then
+      clicked through Overview, Activities, Buildings, and Layouts via the
+      actual nav links (not `page.goto`, which would hard-reload and reset
+      the in-memory state — that's not the scenario acceptance criterion #4
+      describes) and confirmed all four updated by the correct amount
+      simultaneously — this is what caught the router bug above. Exported
+      the edited state, parsed the downloaded file, validated it against
+      `modelSchema`, and confirmed `summarise()` on the re-imported model
+      reproduces the edited total exactly (criterion #5). Clicked Reset and
+      confirmed the banner returns to "matches the seed exactly" and every
+      other screen reverts too (criterion #6). Also checked 375px.
 
 Confirm all of the above still holds before doing anything else:
 
@@ -128,13 +180,54 @@ Confirm all of the above still holds before doing anything else:
 npm install
 npm run verify
 npm test
+npm run lint
 npm run build && rm -rf dist
 ```
 
-## What's not done — in order
+## What's not done
 
-Items 1–4 and screens 1–4 of item 5 are done (kept below for context). Pick up
-at **item 5, screen 5 (Rates)** — the last screen.
+**All five screens are built and all ten acceptance criteria pass** (see the
+table in item 6 below — every row is done, verified in a real browser, not
+just by reading code). Items 1–5 below are kept for context/history, not
+because anything is outstanding in them.
+
+What's genuinely left, in rough priority order:
+
+1. **A pass through `docs/BRIEF.md` section 4's "what to avoid" list against
+   the finished product**, not just the three static mockups. The mockups
+   were checked; five real screens of cumulative detail (many number-heavy
+   cards) haven't been re-checked together for whether they still read as
+   distinctive rather than generic. Worth 20 minutes with fresh eyes before
+   calling this done-done.
+2. **`npm run lint` (oxlint)** — now run and clean of errors. Five warnings
+   remain, all `react(only-export-components)` on files that mix a
+   component with constants/hooks (`ModelContext.tsx`, `router.tsx`,
+   `ScreenNav.tsx`, `direction-c.tsx`) — a Fast Refresh DX note, not a
+   correctness issue; splitting those files just to silence it isn't worth
+   it at this size. Not in the verify chain in `package.json` scripts;
+   consider adding it there if the pattern above stops feeling like enough.
+3. **No automated test drives the app through a browser** (all the
+   click-through verification this session was manual Playwright scripts,
+   written and thrown away each time, not committed). If this repo is going
+   to keep growing, consider whether a couple of committed Playwright specs
+   for the criteria in item 6 (especially #4, since that's exactly the class
+   of bug — state not actually shared — that a unit test can't catch) are
+   worth the added tooling. Not required by the brief; a judgment call for
+   whoever picks this up.
+4. **The `Filters` type (`src/filters/filters.ts`) still only has
+   `building`/`layout`/`discipline`.** `substantiated` and `activity` were
+   never needed by any screen that got built — Buildings and Rates each grew
+   their own single-item selector instead. That's fine (YAGNI held), but
+   don't assume the filter set is "done" in the sense of covering
+   `docs/BRIEF.md` section 5's full list; it covers what got used.
+5. **Phase 2 planning** (`docs/BRIEF.md` section 11) — Supabase, auth,
+   revisions, audit log. Explicitly out of scope for Phase 1; don't start it
+   without the user asking. `src/data/index.ts` is still the one seam to
+   swap.
+
+The numbered list below (screens, design, etc.) is left as a build log — read
+it if you want the history of *how* each piece was built, not to find
+outstanding work.
 
 ### 1. Design directions — done, decision recorded
 
@@ -195,38 +288,25 @@ investigate if totals drift.
    *not* use the URL filters (it has its own building-card selector, same
    pattern as Layouts/Activities) — the `ScreenNav.navigate()` query-reset
    note below is still accurate, since Buildings never wrote to `search`.
-5. **Rates — next, and last screen.** The editing surface: change any
-   rate/area/count, persistent delta-vs-seed banner, reset, export JSON.
-   First screen that needs React state for edits — every screen so far is a
-   pure derivation of `seed.json` straight from `src/data/index.ts`. This is
-   also where acceptance criteria #4, #5, #6 get proven (see the table
-   below) — they can't be satisfied by any earlier screen, so don't consider
-   Phase 1 close to done until Rates exists and those three are checked.
-   Suggested shape: lift the edited model into a React context or a single
-   `useState<Model>` near the app root (not per-screen state — every screen
-   reads `model` from `src/data/index.ts` today via a plain import; Rates
-   editing means that needs to become props/context instead, which touches
-   every screen file to swap the import for the passed-down value). Reset =
-   replace the edited state with a fresh `loadModel()` call. Export = current
-   edited state as an already-valid `Model`, serialized with `JSON.stringify`
-   — it re-imports cleanly for free since it's the same shape `schema.ts`
-   already validates.
+5. **Rates — done.** `src/screens/Rates.tsx` + `src/data/ModelContext.tsx` +
+   `src/selectors/rates.ts`. See "What's done" above for the full account,
+   including the navigation bug this screen's verification caught and fixed.
+   Edited state lives in `ModelProvider` at the app root; every screen reads
+   `useModel()` instead of the static `model` export now.
 
 Filters (cluster, building, layout, discipline, activity, substantiated) are
-global and reflected in the URL. `building`/`layout`/`discipline` are wired
-(`src/filters/filters.ts`, `FilterBar`) and used by Activities today; neither
-Buildings nor Rates need them yet (Buildings has its own single-building
-selector; Rates is an editing surface, not a filtered view). Add
-`substantiated` to `Filters` if a later screen needs "show only
-unsubstantiated," and `activity` if Rates should deep-link to editing one
-activity's rate. `cluster` still isn't exposed in the UI — there's only
-one — but every selector already groups by `cluster_id`.
+global and reflected in the URL per `docs/BRIEF.md` section 5.
+`building`/`layout`/`discipline` are wired (`src/filters/filters.ts`,
+`FilterBar`) and used by Activities. Buildings and Rates each ended up with
+their own single-item selector instead of the shared filter bar — that's a
+reasonable call for a single-building or single-layout drill-down, not a gap
+to close reflexively. `substantiated`, `activity`, and `cluster` were never
+added to `Filters` because nothing built needed them; add them if and when
+something does.
 
-One thing to note for whoever builds Rates: `ScreenNav`'s `navigate()`
-resets the query string on every screen change (see `src/routing/router.ts`
-— `navigate` calls `push(pathname, new URLSearchParams())`). That's still
-fine — only Activities reads `search`, and nothing links into Activities
-with filters pre-set yet. Revisit if that changes.
+`ScreenNav`'s `navigate()` resets the query string on every screen change
+(see `src/routing/router.tsx`). Still fine today — only Activities reads
+`search`, and no other screen deep-links into it with filters pre-set.
 
 ### 6. Full acceptance criteria (`docs/BRIEF.md` section 7)
 
@@ -235,15 +315,20 @@ Check every one before calling Phase 1 done:
 | # | Criterion | Status |
 |---|---|---|
 | 1 | `npx tsx verify.ts` reproduces documented numbers | done |
-| 2 | 9th activity flows through every screen, covered by a test | test done; "every screen" needs screens 2–5 |
-| 3 | 4th building flows through every roll-up, covered by a test | test done; needs screens 2–5 for full coverage |
-| 4 | Editing window rate updates total/chart/building/per-apartment together | not started — needs Rates screen |
-| 5 | Export JSON re-imports and reproduces edited state | not started — needs Rates screen |
-| 6 | Reset returns exactly to seed | not started — needs Rates screen |
-| 7 | Basement (0 units, 3 lump sums) renders correctly everywhere | done on Overview + Buildings (verified in-browser: empty layouts, all 3 lump sums with notes); N/A on Layouts/Activities |
-| 8 | Filtering to one activity doesn't break chart layout | done on Activities (verified in-browser, incl. the basement empty state); recheck once Rates adds charts under filters, if it does |
-| 9 | Usable at 375px width | done on Overview + Layouts + Activities + Buildings (verified in-browser); needs Rates |
-| 10 | Every figure shows measured vs. lump sum | done on Overview + Layouts + Activities + Buildings; needs Rates |
+| 2 | 9th activity flows through every screen, covered by a test | done — fixture tests in `engine.extension.test.ts`, `activities.test.ts`, `layouts.test.ts` |
+| 3 | 4th building flows through every roll-up, covered by a test | done — fixture tests in `engine.extension.test.ts`, `buildings.test.ts` |
+| 4 | Editing window rate updates total/chart/building/per-apartment together | **done — verified in a real browser**: edited Edge's window rate on Rates, clicked through Overview/Activities/Buildings/Layouts via the actual nav (not a page reload), all four updated by the correct amount. Caught and fixed a real router bug in the process (see "What's done") |
+| 5 | Export JSON re-imports and reproduces edited state | done — downloaded file re-validated against `modelSchema` and re-summarised; total matched the edited state exactly |
+| 6 | Reset returns exactly to seed | done — verified in-browser: banner returns to "matches the seed exactly," every other screen reverts |
+| 7 | Basement (0 units, 3 lump sums) renders correctly everywhere | done — Overview, Buildings, Rates (0 apartments, all fields still editable/visible); N/A on Layouts/Activities (space/activity-level, no per-building rendering) |
+| 8 | Filtering to one activity doesn't break chart layout | done — verified in-browser on Activities, incl. the basement empty state |
+| 9 | Usable at 375px width | done — all five screens verified in-browser at 375px |
+| 10 | Every figure shows measured vs. lump sum | done — all five screens; Layouts/Activities are 100% measured and say so explicitly, Rates' editable fields are all measured/build-up inputs by definition (lump sums aren't edited per-line here) |
+
+**All ten criteria pass.** Phase 1 is functionally complete against the brief's
+acceptance criteria. See "What's not done" above for the handful of
+non-blocking follow-ups (a fresh-eyes design pass, lint in the verify chain,
+committed browser tests, Phase 2 planning) before calling it fully closed.
 
 ## Things to not do
 
@@ -254,11 +339,19 @@ instead of building it.
 
 ## If you're an AI picking this up cold
 
-1. Run the three verify commands above. If any fail, that's the first thing
+1. Run the four verify commands above. If any fail, that's the first thing
    to fix — don't build on top of a broken state.
-2. Check whether a design direction has already been chosen (look for
-   design-direction HTML files, or ask the user — don't guess and don't
-   average multiple directions together).
-3. Work the "what's not done" list in order. Update the checkboxes/table in
-   this file as you complete each item, and commit that update alongside the
-   code so the next handoff is accurate.
+2. All five screens exist and all ten acceptance criteria pass (item 6
+   above). This is not a "pick up where the last session left off mid-build"
+   situation — it's "the brief is met; what's next is either the follow-ups
+   in 'What's not done' or new scope the user asks for."
+3. If asked to change or extend a screen: read the relevant selector's test
+   file first — it documents the invariants (e.g. space totals always sum to
+   `layoutTotal`, rate groups always sum to the activity total) that a change
+   must not break.
+4. Trust the browser over the code for anything involving cross-component
+   state or navigation. This session shipped a real bug (`useRoute()` as a
+   plain hook instead of shared context) that every static read of the code
+   looked correct — it only surfaced when a click-through test compared the
+   URL against what was actually rendered. `npm test` and `tsc` both stayed
+   green through it.

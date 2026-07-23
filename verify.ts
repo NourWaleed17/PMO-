@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { Model, summarise, layoutTotal, layoutCost } from "./src/engine/engine";
+import { Model, summarise, layoutTotal } from "./src/engine/engine";
 
 const model: Model = JSON.parse(readFileSync("src/data/seed.json", "utf8"));
 const s = summarise(model);
