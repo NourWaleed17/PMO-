@@ -257,19 +257,29 @@ because anything is outstanding in them.
 
 What's genuinely left, in rough priority order:
 
-1. **A pass through `docs/BRIEF.md` section 4's "what to avoid" list against
-   the finished product**, not just the three static mockups. The mockups
-   were checked; five real screens of cumulative detail (many number-heavy
-   cards) haven't been re-checked together for whether they still read as
-   distinctive rather than generic. Worth 20 minutes with fresh eyes before
-   calling this done-done.
-2. **`npm run lint` (oxlint)** — now run and clean of errors. Five warnings
-   remain, all `react(only-export-components)` on files that mix a
-   component with constants/hooks (`ModelContext.tsx`, `router.tsx`,
-   `ScreenNav.tsx`, `direction-c.tsx`) — a Fast Refresh DX note, not a
-   correctness issue; splitting those files just to silence it isn't worth
-   it at this size. Not in the verify chain in `package.json` scripts;
-   consider adding it there if the pattern above stops feeling like enough.
+1. **Done — 2026-07-23, post-merge.** Fresh-eyes pass through `docs/BRIEF.md`
+   section 4's "what to avoid" list against the finished Direction D product
+   (not just the mockups), via real Playwright screenshots of all five
+   screens at 1280px and 375px, plus the basement drill-down on Buildings.
+   No cream/terracotta, no dark-mode-crypto, no gradient hero cards — the
+   surface is navy/slate on light grey, numbers are plain bordered cards in
+   JetBrains Mono. The domain-specific signature (diagonal hatch for
+   built-up figures vs. dashed border for lump-sum, carried through every
+   screen; rate-tier grouping on Activities; alt-figure notes surfaced
+   verbatim on the basement's lump sums) reads as construction-specific, not
+   generic SaaS analytics. One thing double-checked and confirmed correct
+   rather than a bug: the Overview apartment-finishes table looks clipped in
+   a full-page screenshot at 375px, but `document.body.scrollWidth ===
+   document.documentElement.clientWidth` there — it scrolls inside its own
+   `overflow-x-auto` wrapper, the page itself never scrolls horizontally.
+   No changes made; nothing needed one.
+2. **`npm run lint` (oxlint)** — clean of errors. Three warnings remain (down
+   from five pre-Direction-D), all `react(only-export-components)` on files
+   that mix a component with constants/hooks (`ModelContext.tsx`,
+   `router.tsx`, `AppShell.tsx`) — a Fast Refresh DX note, not a correctness
+   issue; splitting those files just to silence it isn't worth it at this
+   size. Not in the verify chain in `package.json` scripts; consider adding
+   it there if the pattern above stops feeling like enough.
 3. **No automated test drives the app through a browser** (all the
    click-through verification this session was manual Playwright scripts,
    written and thrown away each time, not committed). If this repo is going
