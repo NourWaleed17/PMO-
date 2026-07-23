@@ -408,13 +408,71 @@ acceptance criteria. See "What's not done" above for the handful of
 non-blocking follow-ups (a fresh-eyes design pass, lint in the verify chain,
 committed browser tests, Phase 2 planning) before calling it fully closed.
 
-## Phase 2 — schema drafted and tested, still no live project
+## Phase 2 — project exists, schema/seed ready to apply, no client code yet
 
-**2026-07-23:** the user chose "start real Phase 2 (Supabase, auth, API)"
-via `AskUserQuestion`, overriding `docs/CLAUDE.md`'s Phase 1 scope note for
-that specific decision, then explicitly said "proceed to Phase 2" without
-yet supplying project credentials. What actually happened, since an AI
-session can't provision a live Supabase project or OAuth client on its own:
+**2026-07-23, continued:** three decisions came back via `AskUserQuestion`:
+no existing Supabase project (walk-through requested), email/password auth
+first with Google SSO as a later follow-up, and the jsonb-snapshot revision
+approach confirmed as-is (no normalized per-field history). The user then
+created a Supabase project by hand and supplied its URL and **publishable
+(anon) key** — never the `service_role` key, which stays out of this repo
+and this conversation entirely.
+
+- **`.env`** (gitignored, not committed) now holds the real
+  `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` for that project.
+- **`src/data/supabaseClient.ts`** — the one `createClient()` call, reading
+  both from `import.meta.env`, throwing a specific error if either is
+  missing. `@supabase/supabase-js` is now a real dependency. Not imported
+  by anything yet — no auth UI or live query code exists in `src/` to use
+  it, same reasoning as before: build that against something real, not
+  speculatively.
+- **`scripts/generate-supabase-seed.mjs`** — new. Projects `seed.json` into
+  `supabase/seed.sql` (committed, regenerate-don't-hand-edit, like
+  `verify.ts` does for the engine). Full account of how it's structured and
+  what it tested clean against a scratch Postgres in `supabase/README.md`
+  "Seed data — seed.sql" — short version: reconstructed the seeded tables
+  back into a `Model`, validated, ran through `summarise()`, got
+  **147,629,110.42** again, exact.
+- **One real bug surfaced, not yet fixed**: reconstructing lump sums from
+  Postgres gives `note: null` for rows with no note; `modelSchema` has
+  `note: z.string().optional()`, which wants the key omitted, not `null`.
+  Worked around by hand for the test; **the actual fix belongs in the live
+  data-fetching module** (normalize `null` → omitted at the fetch boundary,
+  the same place a future non-seed.json backend's quirks should always be
+  absorbed) — not yet written, see below.
+
+**Not yet done, in order:**
+1. **Apply the schema and seed to the real project.** Neither this session
+   nor any AI session has the project's DB password or `service_role` key
+   (deliberately never asked for), so this needs the user, in Supabase
+   Studio → SQL Editor: paste-and-run
+   `supabase/migrations/20260723120000_phase2_schema.sql`, then
+   paste-and-run `supabase/seed.sql`. Exact steps and a sanity-check query
+   in `supabase/README.md`.
+2. **Build the auth UI** — email/password sign-up and sign-in, per the
+   confirmed decision. New Supabase users default to `viewer` via the
+   migration's trigger; there's no promote-to-editor UI yet (that's an
+   out-of-band `update profiles set role = 'editor' ...`, deliberately, per
+   the schema's own design — no self-service editor signup exists).
+3. **Build the live data-fetching module**, fixing the null-note
+   normalization above as part of it, and swap `src/data/index.ts` from the
+   static `seed.json` import to it — behind auth, since RLS has no policy
+   granting the unauthenticated `anon` role any reads (only `authenticated`
+   is granted `using (true)`), so nothing in the live tables is reachable
+   without signing in first. This also means step 2 has to exist before
+   step 3 can be tested at all, not just before it's "complete."
+4. **Wire the editor/viewer split and the revision draft/approve flow into
+   the Rates screen**, replacing (or sitting alongside) today's in-memory
+   `ModelContext` — viewers should see Rates read-only, editors get the
+   current edit/reset/export behavior plus a real approve step that locks
+   the revision server-side (the migration's trigger already enforces this
+   in the database regardless of what the UI does).
+5. Google SSO, whenever that becomes the priority — needs an OAuth client
+   from Google Cloud Console the user hasn't set up yet. Not blocking
+   anything above.
+
+Below is the original account of the schema draft and its own testing, kept
+for history:
 
 - **`supabase/migrations/20260723120000_phase2_schema.sql`** — a full
   first-draft schema (tables mirroring `docs/MODEL.md`, plus `profiles`
@@ -444,24 +502,19 @@ session can't provision a live Supabase project or OAuth client on its own:
   `docs/CLAUDE.md` warns against. That's the next piece of actual code, once
   unblocked.
 
-What's still genuinely blocking a live deployment:
+What was blocking a live deployment, and current status:
 
-- **A live Supabase project** — URL + anon key, from the user. (Local
-  Supabase via CLI is also an option if they'd rather scaffold against that
-  first, but the CLI would need installing and Docker isn't available in
-  this particular sandbox — a future session may have it.)
-- **An auth provider** — the brief specifies Google SSO (`docs/BRIEF.md`
-  section 11), needs an OAuth client from Google Cloud Console.
-- **Sign-off on the schema above.** It's a reasoned first draft, tested for
-  internal correctness, not a reviewed-and-approved design. In particular:
-  the revision-as-jsonb-snapshot approach (vs. a normalized per-field
-  history) was a deliberate simplicity call worth the user confirming
-  they're fine with, especially if Phase 3's what-if scenarios
-  (`docs/BRIEF.md` section 11) end up wanting more granular diffs than a
-  snapshot gives you.
+- ~~A live Supabase project — URL + anon key, from the user.~~ **Done** —
+  project created, credentials in `.env` (see above).
+- ~~Sign-off on the schema.~~ **Done** — jsonb-snapshot revisions confirmed
+  via `AskUserQuestion`.
+- **An auth provider.** Email/password chosen for now (no external setup
+  needed, Supabase enables it by default) — Google SSO explicitly deferred,
+  needs an OAuth client from Google Cloud Console whenever it becomes a
+  priority. Not blocking anything in the "not yet done" list above.
 
-Next session: get the above from the user before writing Supabase client
-code or pushing this migration to a real project.
+Next session: apply the schema + seed (step 1 above) if that hasn't
+happened yet, then continue with the auth UI and live data module.
 
 ## Things to not do
 

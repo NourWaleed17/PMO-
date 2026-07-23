@@ -90,12 +90,52 @@ fresh database.
   nested selects, generated API shape) — this was tested against raw SQL
   via `pg`, not through PostgREST.
 
+## Seed data — `seed.sql`
+
+`../scripts/generate-supabase-seed.mjs` reads `src/data/seed.json` and
+writes `seed.sql` — the real Cluster 1 numbers as `insert` statements
+against this schema, not just an empty schema. Regenerate it (`node
+scripts/generate-supabase-seed.mjs > supabase/seed.sql`) any time
+`seed.json` changes; never hand-edit `seed.sql` directly.
+
+`spaces` are inserted first (keyed on `(layout_id, space_key)`, `space_key`
+being the original `seed.json` space `id`), then `space_rates` resolves the
+generated `uuid` via a temporary staging table joined back on that same
+key — this is what lets the script stay a plain multi-statement SQL file
+instead of needing a scripting language to carry a generated id from one
+insert into the next. Every insert is `on conflict do update`, so re-running
+the whole file is safe; `lump_sums` (no natural key) instead deletes each
+building's existing lump sums immediately before re-inserting them.
+
+**Tested the same way as the schema** (see below): applied to a scratch
+Postgres 16 instance after the migration, then the seeded tables were
+reconstructed into a `Model`-shaped JSON via a single SQL `json_build_object`
+query, validated against `modelSchema`, and run through `summarise()` —
+**147,629,110.42**, exact match, all five per-apartment costs and the 76.8%
+unsubstantiated share reproduced exactly.
+
+That reconstruction surfaced one real mismatch, **not yet fixed in code**:
+`lump_sums.note` is a nullable Postgres column, so a row with no note comes
+back as `note: null` from any real query (Postgres/PostgREST both do this);
+`modelSchema` has `note: z.string().optional()`, which accepts a missing key
+but rejects `null`. Confirmed by validation failing until `null` notes were
+stripped by hand before parsing. **Whoever writes the live data-fetching
+module (`src/data/live.ts` or similar) needs to normalize `note: null` to an
+omitted key at that fetch boundary** — the cleanest fix, since `engine.ts`
+and `modelSchema` describe `seed.json`'s shape (where absence is an omitted
+key), and Phase 2's data-access seam is exactly where a backend's
+representation gets translated into that shape, not the other way around.
+
 ## To actually apply this
 
-Once there's a Supabase project: `supabase link` then `supabase db push`,
-or paste the migration into the Supabase Studio SQL editor. No client code
-exists yet in `src/` to point at it — `src/data/index.ts` still reads
-`seed.json` directly, deliberately, until there's something real to swap it
-for. See `docs/HANDOFF.md` "Phase 2" for what's still needed before that
-swap makes sense (project credentials, an OAuth client, sign-off on this
-schema).
+1. Supabase Studio → SQL Editor → paste and run
+   `migrations/20260723120000_phase2_schema.sql` in full.
+2. Then paste and run `seed.sql` the same way (it's wrapped in its own
+   `begin`/`commit`, safe to run right after).
+3. Confirm: `select count(*) from buildings;` should return `4`; `select
+   sum(amount) from lump_sums;` should return `113431282.00`.
+
+No client code exists yet in `src/` to point at any of this —
+`src/data/index.ts` still reads `seed.json` directly, deliberately, until
+there's a live, seeded project plus auth to actually test against. See
+`docs/HANDOFF.md` "Phase 2" for what's next once the project is seeded.
