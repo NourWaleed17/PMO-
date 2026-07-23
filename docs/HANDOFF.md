@@ -45,6 +45,32 @@ handoff is just as clean.
       Verified in a real browser (Chromium via Playwright) at 1280px and at
       375px — renders correctly at both, basement's 100%-lump-sum bar and
       "no units" label render without special-casing.
+- [x] `src/design/direction-c.tsx` — the shared Direction C tokens and
+      components (`PageShell`, `Bar`, `SplitMeter`, `weightStyle`, colour
+      constants) factored out of `Overview.tsx` so every screen extends the
+      same system instead of redefining it. Overview now imports from here.
+- [x] `src/routing/router.ts` + `src/components/ScreenNav.tsx` — a small
+      hand-rolled path router (no library — two-to-five screens don't
+      warrant one, and it's not in the brief's tech stack) and the shared nav
+      component every screen renders at the bottom. Flip `built: true` on a
+      `NAV_ITEMS` entry in `ScreenNav.tsx` as each screen ships; nothing else
+      about navigation changes.
+- [x] `src/selectors/layouts.ts` + `layouts.test.ts` — space-by-space
+      breakdown per layout. A test asserts the space-level sum always equals
+      engine `layoutTotal` (so the displayed breakdown can never silently
+      disagree with the header figure), reproduces the five known-good
+      per-apartment costs, and covers both null-handling cases: a space
+      absent from a layout (both areas null → "not in this layout", not a
+      silent zero) vs. a present space with no applicable rates (public
+      corridor → present, zero cost, "no activity applies here").
+- [x] `src/screens/Layouts.tsx` — second real screen, Direction C. Five
+      layout summary cards (click to switch), per-apartment activities
+      (doors/windows, not tied to a space), then all 17 named spaces as
+      cards — present spaces with their rate × qty breakdown, absent ones
+      grouped below with a dashed "not in this layout" treatment. Verified
+      in-browser at 1280px and 375px, and a real click-through (Overview →
+      Layouts nav link → switch to Apartment Middle) confirmed navigation
+      and the absent-space rendering both work.
 
 Confirm all of the above still holds before doing anything else:
 
@@ -57,8 +83,8 @@ npm run build && rm -rf dist
 
 ## What's not done — in order
 
-Items 1–4 below are done (kept for context — see "What's done" above and the
-decision note in item 1). Pick up at **item 5, screen 2 (Layouts)**.
+Items 1–4 and screen 1–2 of item 5 are done (kept below for context). Pick up
+at **item 5, screen 3 (Activities)**.
 
 ### 1. Design directions — done, decision recorded
 
@@ -105,18 +131,21 @@ investigate if totals drift.
 1. **Overview — done.** `src/screens/Overview.tsx`. Cluster total with
    substantiation split, apartment count, cost per apartment, cost per m²,
    cost by building, cost by discipline, cost by activity (apartment
-   finishes). The route-out nav to the other four screens is present but
-   inert (`aria-disabled`, "Not built yet" tooltip) — there's nothing to
-   route to until they exist. Wire real navigation once at least Layouts
-   exists; don't add a router for a single working link.
-2. **Layouts — next.** The five apartment types, space by space: floor area,
-   wall area, applicable activities, rate, cost. Deepest level; proves the
-   model. Build to Direction C (see item 1) — card-based, same border-weight
-   signature for measured vs. lump sum, same `src/lib/format.ts` and
-   `numClass`. Add a `src/selectors/layouts.ts` alongside it rather than
-   growing `overview.ts` or touching `engine.ts`.
-3. **Activities** — all activities across the cluster, filterable by
+   finishes).
+2. **Layouts — done.** `src/screens/Layouts.tsx` + `src/selectors/layouts.ts`.
+   The five apartment types, space by space. See "What's done" above for
+   detail. Real navigation is now wired (`src/routing/router.ts` +
+   `ScreenNav`) between Overview and Layouts.
+3. **Activities — next.** All activities across the cluster, filterable by
    building/layout/discipline, showing the rate × count behind each total.
+   This is the first screen that needs the global filters (see below) — a
+   reasonable place to introduce them, since Activities is unusable at scale
+   without at least a discipline/building filter. Add
+   `src/selectors/activities.ts`; reuse `layoutRows`/`byActivity`-style
+   patterns rather than re-deriving the rate × qty math a third time —
+   consider whether the per-space breakdown in `layouts.ts` can be
+   generalized instead of duplicated. Flip `activities.built = true` in
+   `src/components/ScreenNav.tsx` once it ships.
 4. **Buildings** — drill into one building: layouts, unit counts, measured
    cost, lump sums. The basement (`b.units = []`, 3 lump sums) must render
    without special-casing — `byBuilding()` in `src/selectors/overview.ts`
@@ -126,9 +155,11 @@ investigate if totals drift.
    delta-vs-seed banner, reset, export JSON.
 
 Filters (cluster, building, layout, discipline, activity, substantiated) are
-global and reflected in the URL — wire them once, not per screen. Worth
-introducing when Layouts or Activities lands (whichever needs filtering
-first), not before.
+global and reflected in the URL — wire them once, not per screen. Introduce
+them with Activities (see above), then reuse across Buildings/Rates. The
+hand-rolled router in `src/routing/router.ts` only tracks `pathname` today;
+it'll need to grow query-param read/write for this, still with no added
+dependency.
 
 ### 6. Full acceptance criteria (`docs/BRIEF.md` section 7)
 
@@ -142,10 +173,10 @@ Check every one before calling Phase 1 done:
 | 4 | Editing window rate updates total/chart/building/per-apartment together | not started — needs Rates screen |
 | 5 | Export JSON re-imports and reproduces edited state | not started — needs Rates screen |
 | 6 | Reset returns exactly to seed | not started — needs Rates screen |
-| 7 | Basement (0 units, 3 lump sums) renders correctly everywhere | done on Overview; needs screens 2–5 |
+| 7 | Basement (0 units, 3 lump sums) renders correctly everywhere | done on Overview; Layouts has no buildings to render (space-level only); needs 4–5 |
 | 8 | Filtering to one activity doesn't break chart layout | not started — needs filters |
-| 9 | Usable at 375px width | done on Overview (verified in-browser); needs screens 2–5 |
-| 10 | Every figure shows measured vs. lump sum | done on Overview; needs screens 2–5 |
+| 9 | Usable at 375px width | done on Overview + Layouts (verified in-browser); needs screens 3–5 |
+| 10 | Every figure shows measured vs. lump sum | done on Overview + Layouts (Layouts is 100% measured, stated explicitly); needs screens 3–5 |
 
 ## Things to not do
 
