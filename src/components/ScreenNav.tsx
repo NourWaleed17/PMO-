@@ -12,18 +12,18 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { path: "/", label: "Overview", built: true },
   { path: "/layouts", label: "Layouts", built: true },
-  { path: "/activities", label: "Activities", built: false },
+  { path: "/activities", label: "Activities", built: true },
   { path: "/buildings", label: "Buildings", built: false },
   { path: "/rates", label: "Rates", built: false },
 ];
 
 export function ScreenNav() {
-  const [path, navigate] = useRoute();
+  const { pathname, navigate } = useRoute();
 
   return (
     <nav className="flex flex-wrap gap-2.5" aria-label="Screens">
       {NAV_ITEMS.map((item) => {
-        const isCurrent = item.path === path;
+        const isCurrent = item.path === pathname;
         if (!item.built) {
           return (
             <span
