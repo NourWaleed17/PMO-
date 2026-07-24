@@ -100,19 +100,32 @@ scripts/generate-supabase-seed.mjs > supabase/seed.sql`) any time
 
 `spaces` are inserted first (keyed on `(layout_id, space_key)`, `space_key`
 being the original `seed.json` space `id`), then `space_rates` resolves the
-generated `uuid` via a temporary staging table joined back on that same
-key — this is what lets the script stay a plain multi-statement SQL file
-instead of needing a scripting language to carry a generated id from one
-insert into the next. Every insert is `on conflict do update`, so re-running
+generated `uuid` by joining against an inline `values (...) as st(...)`
+derived table keyed on that same pair — one `insert ... select`, no
+intermediate table. Every insert is `on conflict do update`, so re-running
 the whole file is safe; `lump_sums` (no natural key) instead deletes each
 building's existing lump sums immediately before re-inserting them.
+
+**An earlier version of this script used a `create temporary table` to
+stage the space-rate rows before joining.** That failed against the real
+Supabase project with `relation "space_rates_staging" does not exist` —
+Supabase's SQL Editor doesn't guarantee a whole pasted script executes on
+one session/connection, so a session-scoped temp table created in one
+statement can be gone by the next. Fixed by replacing the temp table with
+the inline `values (...)` derived table above, which has no state to lose
+between statements. **Re-verified the fix is actually robust**, not just
+plausible: ran every top-level statement in `seed.sql` as a *separate*
+`psql` invocation against a scratch database — a fresh connection per
+statement, deliberately simulating the worst case of what the SQL Editor
+might do — and every statement still succeeded independently.
 
 **Tested the same way as the schema** (see below): applied to a scratch
 Postgres 16 instance after the migration, then the seeded tables were
 reconstructed into a `Model`-shaped JSON via a single SQL `json_build_object`
 query, validated against `modelSchema`, and run through `summarise()` —
 **147,629,110.42**, exact match, all five per-apartment costs and the 76.8%
-unsubstantiated share reproduced exactly.
+unsubstantiated share reproduced exactly. Re-confirmed after the temp-table
+fix above, including under the separate-connection-per-statement test.
 
 That reconstruction surfaced one real mismatch, **not yet fixed in code**:
 `lump_sums.note` is a nullable Postgres column, so a row with no note comes

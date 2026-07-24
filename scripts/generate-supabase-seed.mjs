@@ -80,8 +80,14 @@ lines.push(
 );
 lines.push("");
 
-// space_rates — via a temp staging table keyed on (layout_id, space_key,
-// activity_id), joined against spaces to resolve the real uuid.
+// space_rates — resolved against spaces via an inline VALUES list rather
+// than a session-scoped temp table. Supabase's SQL Editor doesn't guarantee
+// a whole pasted script runs on one connection, so a `create temporary
+// table` in one statement can be gone by the next (this is exactly the bug
+// that surfaced running this against a real project: "relation
+// space_rates_staging does not exist"). A single INSERT ... SELECT with the
+// staging rows as a literal VALUES-derived table has no cross-statement
+// state to lose.
 const spaceRateRows = model.layouts.flatMap((l) =>
   l.spaces.flatMap((s) =>
     Object.entries(s.rates).map(([activityId, rate]) => ({
@@ -92,24 +98,18 @@ const spaceRateRows = model.layouts.flatMap((l) =>
     }))
   )
 );
-lines.push("create temporary table space_rates_staging (");
-lines.push("  layout_id text, space_key text, activity_id text, rate numeric(14, 2)");
-lines.push(") on commit drop;");
-lines.push("");
-lines.push("insert into space_rates_staging (layout_id, space_key, activity_id, rate) values");
+lines.push("insert into space_rates (space_id, activity_id, rate)");
+lines.push("select s.id, st.activity_id, st.rate");
+lines.push("from (values");
 lines.push(
   spaceRateRows
     .map(
-      (r) =>
-        `  (${sqlStr(r.layoutId)}, ${sqlStr(r.spaceKey)}, ${sqlStr(r.activityId)}, ${sqlNum(r.rate)})`
+      (r, i) =>
+        `  (${sqlStr(r.layoutId)}, ${sqlStr(r.spaceKey)}, ${sqlStr(r.activityId)}, ${sqlNum(r.rate)})${i < spaceRateRows.length - 1 ? "," : ""}`
     )
-    .join(",\n")
+    .join("\n")
 );
-lines.push(";");
-lines.push("");
-lines.push("insert into space_rates (space_id, activity_id, rate)");
-lines.push("select s.id, st.activity_id, st.rate");
-lines.push("from space_rates_staging st");
+lines.push(") as st(layout_id, space_key, activity_id, rate)");
 lines.push("join spaces s on s.layout_id = st.layout_id and s.space_key = st.space_key");
 lines.push("on conflict (space_id, activity_id) do update set rate = excluded.rate;");
 lines.push("");

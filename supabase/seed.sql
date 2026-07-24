@@ -128,11 +128,9 @@ insert into spaces (layout_id, space_key, name, floor_area, wall_area) values
   ('apt_3', 'public_corridor', 'Public Corridor', null, null)
 on conflict (layout_id, space_key) do update set name = excluded.name, floor_area = excluded.floor_area, wall_area = excluded.wall_area;
 
-create temporary table space_rates_staging (
-  layout_id text, space_key text, activity_id text, rate numeric(14, 2)
-) on commit drop;
-
-insert into space_rates_staging (layout_id, space_key, activity_id, rate) values
+insert into space_rates (space_id, activity_id, rate)
+select s.id, st.activity_id, st.rate
+from (values
   ('edge', 'terrace', 'ceramic_flooring', 350),
   ('edge', 'reception_and_dinning', 'ceramic_flooring', 650),
   ('edge', 'reception_and_dinning', 'painting_walls', 140),
@@ -378,11 +376,7 @@ insert into space_rates_staging (layout_id, space_key, activity_id, rate) values
   ('apt_3', 'shared_wc', 'ceramic_flooring', 350),
   ('apt_3', 'shared_wc', 'ceramic_walls', 350),
   ('apt_3', 'shared_wc', 'gypsum_board', 400)
-;
-
-insert into space_rates (space_id, activity_id, rate)
-select s.id, st.activity_id, st.rate
-from space_rates_staging st
+) as st(layout_id, space_key, activity_id, rate)
 join spaces s on s.layout_id = st.layout_id and s.space_key = st.space_key
 on conflict (space_id, activity_id) do update set rate = excluded.rate;
 

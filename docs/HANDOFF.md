@@ -440,6 +440,21 @@ and this conversation entirely.
   data-fetching module** (normalize `null` → omitted at the fetch boundary,
   the same place a future non-seed.json backend's quirks should always be
   absorbed) — not yet written, see below.
+- **A second real bug, surfaced only against the actual live project and
+  since fixed**: `seed.sql` originally staged `space_rates` through a
+  `create temporary table`. That's session-scoped, and Supabase's SQL
+  Editor doesn't guarantee a whole pasted script runs on one
+  session/connection — the user hit `relation "space_rates_staging" does
+  not exist` running it for real. Fixed by replacing the temp table with an
+  inline `values (...) as st(...)` derived table inside a single `insert ...
+  select` — no cross-statement state to lose. Re-verified by running every
+  statement in `seed.sql` as a separate `psql` call against a scratch
+  database (a fresh connection each time, deliberately worse than the
+  original single-session test) and re-confirming the reconstructed total
+  still hits 147,629,110.42. This is exactly the class of bug the local
+  Postgres testing in this repo can't catch on its own — `psql -f` always
+  keeps one session for a whole file — so it only showed up once something
+  ran against the real platform.
 
 **Not yet done, in order:**
 1. **Apply the schema and seed to the real project.** Neither this session
