@@ -18,8 +18,20 @@ interface ModelContextValue {
 
 const ModelContext = createContext<ModelContextValue | null>(null);
 
-export function ModelProvider({ children }: { children: ReactNode }) {
-  const [model, setModel] = useState<Model>(() => structuredClone(seedModel));
+export function ModelProvider({
+  children,
+  initialModel,
+}: {
+  children: ReactNode;
+  /** Defaults to the static seed.json model (Phase 1 behavior). Pass the
+   *  live-fetched model here once authenticated against a real Supabase
+   *  project (see src/data/live.ts) -- reset still returns to this same
+   *  value, not back to seed.json, since that's the "seed" this session is
+   *  actually working from. */
+  initialModel?: Model;
+}) {
+  const baseline = initialModel ?? seedModel;
+  const [model, setModel] = useState<Model>(() => structuredClone(baseline));
 
   const update = useCallback((mutator: (draft: Model) => void) => {
     setModel((prev) => {
@@ -29,9 +41,12 @@ export function ModelProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const reset = useCallback(() => setModel(structuredClone(seedModel)), []);
+  const reset = useCallback(() => setModel(structuredClone(baseline)), [baseline]);
 
-  const value = useMemo(() => ({ model, seedModel, update, reset }), [model, update, reset]);
+  const value = useMemo(
+    () => ({ model, seedModel: baseline, update, reset }),
+    [model, baseline, update, reset]
+  );
 
   return <ModelContext.Provider value={value}>{children}</ModelContext.Provider>;
 }

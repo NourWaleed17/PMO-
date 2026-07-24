@@ -457,31 +457,66 @@ and this conversation entirely.
   ran against the real platform.
 
 **Not yet done, in order:**
-1. **Apply the schema and seed to the real project.** Neither this session
-   nor any AI session has the project's DB password or `service_role` key
-   (deliberately never asked for), so this needs the user, in Supabase
-   Studio → SQL Editor: paste-and-run
-   `supabase/migrations/20260723120000_phase2_schema.sql`, then
-   paste-and-run `supabase/seed.sql`. Exact steps and a sanity-check query
-   in `supabase/README.md`.
-2. **Build the auth UI** — email/password sign-up and sign-in, per the
-   confirmed decision. New Supabase users default to `viewer` via the
-   migration's trigger; there's no promote-to-editor UI yet (that's an
-   out-of-band `update profiles set role = 'editor' ...`, deliberately, per
-   the schema's own design — no self-service editor signup exists).
-3. **Build the live data-fetching module**, fixing the null-note
-   normalization above as part of it, and swap `src/data/index.ts` from the
-   static `seed.json` import to it — behind auth, since RLS has no policy
-   granting the unauthenticated `anon` role any reads (only `authenticated`
-   is granted `using (true)`), so nothing in the live tables is reachable
-   without signing in first. This also means step 2 has to exist before
-   step 3 can be tested at all, not just before it's "complete."
+1. ~~Apply the schema and seed to the real project.~~ **Done** — user ran
+   both in Supabase Studio's SQL Editor. (First attempt at `seed.sql`
+   surfaced a real bug — a session-scoped temp table doesn't survive across
+   statements in the SQL Editor's execution model — fixed by switching to
+   an inline `values (...)` derived table; see `supabase/README.md`.)
+2. ~~Build the auth UI.~~ **Built, not yet tested against the real project**
+   (see the network note below). `src/data/AuthContext.tsx` (session,
+   profile/role, sign in/up/out via `supabase.auth`) and `src/screens/Auth.tsx`
+   (email/password form, toggling sign-in/sign-up). New users default to
+   `viewer` via the migration's trigger; there's still no promote-to-editor
+   UI, deliberately — that's the out-of-band admin action the schema was
+   designed around.
+3. ~~Build the live data-fetching module.~~ **Built, not yet tested.**
+   `src/data/live.ts` (`fetchLiveModel()`) queries `clusters`, `activities`,
+   `layouts` (nested `spaces` → `space_rates`, and `layout_unit_rates`), and
+   `buildings` (nested `building_units`, `lump_sums`) via PostgREST's
+   embedded-resource selects, reassembles them into a `Model`, and validates
+   with `modelSchema` — same schema `seed.json` goes through. Fixes the
+   null-note normalization noted above at exactly this boundary.
+   `src/data/LiveModelGate.tsx` sits between auth and the rest of the app:
+   shows `Auth` if signed out, a loading state while fetching, the fetch
+   error if validation/the query fails, and otherwise renders the app with
+   the live model. `ModelContext.tsx`'s `ModelProvider` now takes an
+   `initialModel` prop (defaults to the static seed, so nothing about
+   existing tests or the Phase 1 behavior changed) — `App.tsx` wires
+   `AuthProvider` → `LiveModelGate` → `ModelProvider initialModel={live}`.
+   **`src/data/index.ts` (the static seed import) is untouched and still
+   what the test suite's fixtures use** — only `App.tsx`'s actual render
+   tree was switched to the live path.
+
+   **Important gap: none of this has been run against the real project.**
+   This sandbox's outbound network is blocked for `*.supabase.co`
+   (org egress policy — confirmed via `curl`, a 403 at the proxy, not
+   something to route around) as of the same session that wrote this code, so
+   the schema/seed testing loop this repo has relied on so far (apply → run
+   → reconstruct → verify against `summarise()`) wasn't possible here for
+   auth or live queries. Specifically untested, in rough order of "most
+   likely to actually break":
+   - **Whether PostgREST's embedded-resource select syntax above returns the
+     shape assumed** (`layouts(...spaces(...space_rates(...))...)` etc.) —
+     multi-level nested embeds work in PostgREST generally, but this exact
+     query was never run against a live endpoint.
+   - **Whether `numeric` columns come back as JSON numbers or strings.**
+     `src/data/live.ts`'s `num()` helper coerces either way defensively, but
+     which one actually happens was never observed.
+   - The email/password sign-up flow end to end (whether email confirmation
+     is on for this project, whether the `handle_new_user` trigger fires as
+     expected from a real client call rather than the raw-SQL exercise
+     described in "What was actually tested" above).
+   - **Next step for whoever picks this up: `npm run dev`, sign up a test
+     account, and see what actually happens** — the same paste-the-error-back
+     loop that found and fixed the `seed.sql` temp-table bug works here too.
 4. **Wire the editor/viewer split and the revision draft/approve flow into
    the Rates screen**, replacing (or sitting alongside) today's in-memory
    `ModelContext` — viewers should see Rates read-only, editors get the
    current edit/reset/export behavior plus a real approve step that locks
    the revision server-side (the migration's trigger already enforces this
-   in the database regardless of what the UI does).
+   in the database regardless of what the UI does). Not started — do this
+   after step 3 above is confirmed actually working, since it builds on the
+   same live data path.
 5. Google SSO, whenever that becomes the priority — needs an OAuth client
    from Google Cloud Console the user hasn't set up yet. Not blocking
    anything above.

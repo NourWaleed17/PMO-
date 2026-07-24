@@ -5,17 +5,25 @@ import Layouts from "./screens/Layouts";
 import Overview from "./screens/Overview";
 import Rates from "./screens/Rates";
 import { ModelProvider } from "./data/ModelContext";
+import { AuthProvider } from "./data/AuthContext";
+import { LiveModelGate } from "./data/LiveModelGate";
 import { RouteProvider, useRoute } from "./routing/router";
 
 function App() {
   return (
-    <RouteProvider>
-      <ModelProvider>
-        <AppShell>
-          <Screen />
-        </AppShell>
-      </ModelProvider>
-    </RouteProvider>
+    <AuthProvider>
+      <LiveModelGate>
+        {(liveModel) => (
+          <RouteProvider>
+            <ModelProvider initialModel={liveModel}>
+              <AppShell>
+                <Screen />
+              </AppShell>
+            </ModelProvider>
+          </RouteProvider>
+        )}
+      </LiveModelGate>
+    </AuthProvider>
   );
 }
 
